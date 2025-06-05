@@ -1,1 +1,19 @@
-x = 10;
+for (int num = 2; num <= limite; num++) {
+        bool esPrimo = true;
+        
+        // Verificar si el número es primo
+        if (num == 2) {
+            esPrimo = true;
+        } else if (num % 2 == 0) {
+            esPrimo = false;
+        } else {
+            // Verificar divisores impares hasta la raíz cuadrada
+            int i = 3;
+            while (i <= sqrt(num) && esPrimo) {
+                if (num % i == 0) {
+                    esPrimo = false;
+                }
+                i += 2;
+            }
+        }
+}

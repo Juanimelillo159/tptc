@@ -1,6 +1,5 @@
 package tptc;
 
-import org.antlr.v4.runtime.tree.ParseTree;
 import java.util.*;
 
 /**
@@ -18,7 +17,6 @@ public class ReportadorSintactico {
         mostrarResumenAnalisis(resultado);
 
         if (resultado.fueExitoso()) {
-            mostrarArbolSintactico(resultado.getArbolSintactico());
             mostrarEstadisticasDetalladas(resultado);
         } else {
             mostrarErroresSintacticos(resultado.getErrores());
@@ -91,13 +89,6 @@ public class ReportadorSintactico {
                 }
             }
 
-            if (resultado.getArbolSintactico() != null) {
-                writer.println("ÁRBOL SINTÁCTICO:");
-                writer.println("-".repeat(40));
-                VisualizadorAST.exportarArbol(resultado.getArbolSintactico(), rutaExportacion + ".ast");
-                writer.println("(Ver archivo separado: " + rutaExportacion + ".ast)");
-            }
-
             writer.println();
             writer.println("=".repeat(60));
             writer.println("Fin del reporte");
@@ -127,17 +118,10 @@ public class ReportadorSintactico {
             System.out.println("🎉 ¡ANÁLISIS SINTÁCTICO EXITOSO!");
             System.out.println("✅ El programa tiene una estructura sintáctica válida");
             System.out.println();
-            System.out.println("📈 Métricas del árbol sintáctico:");
-            System.out.println("   🌳 Nodos totales: " + resultado.getNumeroNodos());
-            System.out.println("   📏 Profundidad máxima: " + resultado.getProfundidadMaxima());
-            System.out.println("   ⏱️  Tiempo de análisis: " + resultado.getTiempoAnalisis() + " ms");
         } else {
             System.out.println("❌ ERRORES SINTÁCTICOS DETECTADOS");
             System.out.println("🚫 El programa contiene errores de sintaxis");
             System.out.println();
-            System.out.println("📊 Estadísticas de errores:");
-            System.out.println("   ❌ Total de errores: " + resultado.getErrores().size());
-            System.out.println("   ⏱️  Tiempo hasta error: " + resultado.getTiempoAnalisis() + " ms");
 
             // Mostrar distribución de errores por línea
             Map<Integer, Integer> erroresPorLinea = new HashMap<>();
@@ -155,24 +139,6 @@ public class ReportadorSintactico {
         System.out.println();
     }
 
-    private static void mostrarArbolSintactico(ParseTree arbol) {
-        System.out.println("🌳 VISUALIZACIÓN DEL ÁRBOL SINTÁCTICO:");
-        System.out.println();
-
-        if (arbol != null) {
-            // Mostrar el árbol completo
-            VisualizadorAST.mostrarArbolCompleto(arbol);
-
-            System.out.println();
-
-            // Mostrar estadísticas del árbol
-            VisualizadorAST.mostrarEstadisticasArbol(arbol);
-        } else {
-            System.out.println("❌ No se pudo construir el árbol sintáctico debido a errores");
-        }
-
-        System.out.println();
-    }
 
     private static void mostrarErroresSintacticos(List<AnalizadorSintactico.ErrorSintactico> errores) {
         System.out.println("🚨 ERRORES SINTÁCTICOS DETALLADOS:");
@@ -248,12 +214,7 @@ public class ReportadorSintactico {
         }
 
         System.out.println();
-        System.out.println("🔍 COMPLEJIDAD DEL PROGRAMA:");
-        System.out.println("-".repeat(30));
-        String complejidad = evaluarComplejidad(resultado);
-        System.out.println("   Nivel: " + complejidad);
         System.out.println("   Nodos por nivel: " + (resultado.getNumeroNodos() / resultado.getProfundidadMaxima()));
-
         System.out.println("═".repeat(50));
     }
 
@@ -366,19 +327,6 @@ public class ReportadorSintactico {
             default:
                 return "🔹";
         }
-    }
-
-    private static String evaluarComplejidad(AnalizadorSintactico.ResultadoAnalisisSintactico resultado) {
-        int nodos = resultado.getNumeroNodos();
-        int profundidad = resultado.getProfundidadMaxima();
-
-        if (nodos < 20 && profundidad < 5)
-            return "🟢 Bajo";
-        if (nodos < 50 && profundidad < 8)
-            return "🟡 Medio";
-        if (nodos < 100 && profundidad < 12)
-            return "🟠 Alto";
-        return "🔴 Muy Alto";
     }
 
     private static void mostrarPieReporte() {

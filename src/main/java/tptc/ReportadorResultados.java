@@ -1,6 +1,5 @@
 package tptc;
 
-import java.util.Map;
 
 /**
  * Responsabilidad: Formatear y mostrar los resultados del análisis léxico
@@ -16,7 +15,6 @@ public class ReportadorResultados {
         mostrarContenidoArchivo(contenidoArchivo);
         mostrarTablaTokens(resultado);
         mostrarEstadisticas(resultado);
-        mostrarPiePagina();
     }
 
     /**
@@ -74,7 +72,6 @@ public class ReportadorResultados {
         System.out.println("🔢 Total de tokens analizados: " + resultado.getTotalTokens());
         System.out.println("✅ Tokens válidos: " + resultado.getTokensValidos());
         System.out.println("❌ Tokens con error: " + resultado.getTokensConError());
-        System.out.printf("📈 Porcentaje de éxito: %.1f%%%n", resultado.getPorcentajeExito());
 
         // Mostrar resultado final
         System.out.println();
@@ -88,26 +85,9 @@ public class ReportadorResultados {
             System.out.println("   💡 Revisa los tokens marcados como ERROR en la tabla");
         }
 
-        // Mostrar distribución de tipos
-        mostrarDistribucionTipos(resultado.getDistribucionTipos());
+        
     }
 
-    private static void mostrarDistribucionTipos(Map<String, Integer> distribucion) {
-        System.out.println();
-        System.out.println("📋 DISTRIBUCIÓN DE TIPOS DE TOKENS:");
-        System.out.println("─".repeat(40));
-
-        distribucion.entrySet()
-                .stream()
-                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .forEach(entry -> {
-                    String barra = "█".repeat(Math.min(entry.getValue(), 25));
-                    System.out.printf("%-15s: %2d %s%n",
-                            entry.getKey(),
-                            entry.getValue(),
-                            barra);
-                });
-    }
 
     private static void mostrarResumenEjecutivo(AnalizadorLexico.ResultadoAnalisis resultado) {
         System.out.println();
@@ -126,11 +106,4 @@ public class ReportadorResultados {
         }
     }
 
-    private static void mostrarPiePagina() {
-        System.out.println();
-        System.out.println("═".repeat(60));
-        System.out.println("💡 Para analizar otro archivo, cambia la ruta en App.java");
-        System.out.println("🔄 Para re-analizar, ejecuta nuevamente el programa");
-        System.out.println("═".repeat(60));
-    }
 }

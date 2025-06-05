@@ -15,7 +15,6 @@ public class App {
     private static final boolean EJECUTAR_ANALISIS_LEXICO = true;
     private static final boolean EJECUTAR_ANALISIS_SINTACTICO = true;
     private static final boolean MOSTRAR_CONTENIDO_ARCHIVO = true;
-    private static final boolean MOSTRAR_ARBOL_COMPLETO = true;
     private static final boolean EXPORTAR_RESULTADOS = false;
 
     // Configuración de presentación
@@ -79,12 +78,6 @@ public class App {
                     exitoTotal = false;
                 }
 
-                // Mostrar árbol sintáctico si se solicita y es exitoso
-                if (MOSTRAR_ARBOL_COMPLETO && resultadoSintactico.fueExitoso()
-                        && resultadoSintactico.getArbolSintactico() != null) {
-                    System.out.println();
-                    VisualizadorAST.mostrarArbolCompleto(resultadoSintactico.getArbolSintactico());
-                }
             }
 
             // === RESUMEN FINAL ===
@@ -98,8 +91,6 @@ public class App {
             // Código de salida
             System.exit(exitoTotal ? 0 : 1);
 
-        } catch (IOException e) {
-            manejarErrorArchivo(e);
         } catch (Exception e) {
             manejarErrorGeneral(e);
         }
@@ -187,20 +178,6 @@ public class App {
         }
 
         System.out.println();
-        mostrarOpcionesDisponibles();
-    }
-
-    /**
-     * Muestra opciones adicionales disponibles
-     */
-    private static void mostrarOpcionesDisponibles() {
-        System.out.println("💡 OPCIONES DISPONIBLES:");
-        System.out.println("─".repeat(35));
-        System.out.println("📝 Para cambiar archivo: modifica ARCHIVO_A_ANALIZAR en App.java");
-        System.out.println("⚙️  Para configurar: modifica las constantes de configuración");
-        System.out.println("📊 Para exportar: activa EXPORTAR_RESULTADOS = true");
-        System.out.println("🌳 Para árbol DOT: usar VisualizadorAST.exportarADot()");
-        System.out.println("🔍 Para modo simple: activa MODO_DETALLADO = false");
     }
 
     /**
@@ -219,14 +196,6 @@ public class App {
             if (resultadoSintactico != null) {
                 String archivoReporte = "reportes/" + baseNombre + "_sintactico.txt";
                 ReportadorSintactico.exportarReporte(ARCHIVO_A_ANALIZAR, resultadoSintactico, archivoReporte);
-
-                if (resultadoSintactico.getArbolSintactico() != null) {
-                    String archivoAST = "reportes/" + baseNombre + "_ast.txt";
-                    String archivoDOT = "reportes/" + baseNombre + "_ast.dot";
-
-                    VisualizadorAST.exportarArbol(resultadoSintactico.getArbolSintactico(), archivoAST);
-                    VisualizadorAST.exportarADot(resultadoSintactico.getArbolSintactico(), archivoDOT);
-                }
             }
 
         } catch (Exception e) {
@@ -237,22 +206,6 @@ public class App {
     /**
      * Maneja errores de archivo
      */
-    private static void manejarErrorArchivo(IOException e) {
-        System.err.println("╔══════════════════════════════════════════════════════════════╗");
-        System.err.println("║                    ❌ ERROR DE ARCHIVO                      ║");
-        System.err.println("╚══════════════════════════════════════════════════════════════╝");
-        System.err.println();
-        System.err.println("🚫 No se pudo leer el archivo: " + ARCHIVO_A_ANALIZAR);
-        System.err.println();
-        System.err.println("💡 SOLUCIONES:");
-        System.err.println("   1. Verifica que existe la carpeta 'input'");
-        System.err.println("   2. Verifica que existe el archivo '" + ARCHIVO_A_ANALIZAR + "'");
-        System.err.println("   3. Verifica permisos de lectura");
-        System.err.println("   4. Cambia ARCHIVO_A_ANALIZAR en App.java");
-        System.err.println();
-        System.err.println("🔧 Error: " + e.getMessage());
-        System.exit(2);
-    }
 
     /**
      * Maneja errores generales

@@ -55,6 +55,18 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterInstruccionAnidada(compiladorParser.InstruccionAnidadaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitInstruccionAnidada(compiladorParser.InstruccionAnidadaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterDeclaracion_variable(compiladorParser.Declaracion_variableContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -67,13 +79,13 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTipo_completo(compiladorParser.Tipo_completoContext ctx) { }
+	@Override public void enterTipo(compiladorParser.TipoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTipo_completo(compiladorParser.Tipo_completoContext ctx) { }
+	@Override public void exitTipo(compiladorParser.TipoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -103,13 +115,13 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInicializacion_variable(compiladorParser.Inicializacion_variableContext ctx) { }
+	@Override public void enterVariable(compiladorParser.VariableContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitInicializacion_variable(compiladorParser.Inicializacion_variableContext ctx) { }
+	@Override public void exitVariable(compiladorParser.VariableContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -139,13 +151,13 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLista_parametros(compiladorParser.Lista_parametrosContext ctx) { }
+	@Override public void enterParametros(compiladorParser.ParametrosContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLista_parametros(compiladorParser.Lista_parametrosContext ctx) { }
+	@Override public void exitParametros(compiladorParser.ParametrosContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -199,61 +211,61 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInstrucciones_bloque(compiladorParser.Instrucciones_bloqueContext ctx) { }
+	@Override public void enterSi(compiladorParser.SiContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitInstrucciones_bloque(compiladorParser.Instrucciones_bloqueContext ctx) { }
+	@Override public void exitSi(compiladorParser.SiContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInstruccion_expresion(compiladorParser.Instruccion_expresionContext ctx) { }
+	@Override public void enterMientras(compiladorParser.MientrasContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitInstruccion_expresion(compiladorParser.Instruccion_expresionContext ctx) { }
+	@Override public void exitMientras(compiladorParser.MientrasContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInstruccion_seleccion(compiladorParser.Instruccion_seleccionContext ctx) { }
+	@Override public void enterPara(compiladorParser.ParaContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitInstruccion_seleccion(compiladorParser.Instruccion_seleccionContext ctx) { }
+	@Override public void exitPara(compiladorParser.ParaContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInstruccion_iteracion(compiladorParser.Instruccion_iteracionContext ctx) { }
+	@Override public void enterHacer_mientras(compiladorParser.Hacer_mientrasContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitInstruccion_iteracion(compiladorParser.Instruccion_iteracionContext ctx) { }
+	@Override public void exitHacer_mientras(compiladorParser.Hacer_mientrasContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInstruccion_salto(compiladorParser.Instruccion_saltoContext ctx) { }
+	@Override public void enterRetorno(compiladorParser.RetornoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitInstruccion_salto(compiladorParser.Instruccion_saltoContext ctx) { }
+	@Override public void exitRetorno(compiladorParser.RetornoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -271,18 +283,6 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpresion_asignacion(compiladorParser.Expresion_asignacionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExpresion_asignacion(compiladorParser.Expresion_asignacionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterOperador_asignacion(compiladorParser.Operador_asignacionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -295,133 +295,25 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpresion_logica_o(compiladorParser.Expresion_logica_oContext ctx) { }
+	@Override public void enterArgumentos(compiladorParser.ArgumentosContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpresion_logica_o(compiladorParser.Expresion_logica_oContext ctx) { }
+	@Override public void exitArgumentos(compiladorParser.ArgumentosContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpresion_logica_y(compiladorParser.Expresion_logica_yContext ctx) { }
+	@Override public void enterPrimario(compiladorParser.PrimarioContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpresion_logica_y(compiladorParser.Expresion_logica_yContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExpresion_igualdad(compiladorParser.Expresion_igualdadContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExpresion_igualdad(compiladorParser.Expresion_igualdadContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExpresion_relacional(compiladorParser.Expresion_relacionalContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExpresion_relacional(compiladorParser.Expresion_relacionalContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExpresion_aditiva(compiladorParser.Expresion_aditivaContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExpresion_aditiva(compiladorParser.Expresion_aditivaContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExpresion_multiplicativa(compiladorParser.Expresion_multiplicativaContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExpresion_multiplicativa(compiladorParser.Expresion_multiplicativaContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExpresion_unaria(compiladorParser.Expresion_unariaContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExpresion_unaria(compiladorParser.Expresion_unariaContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExpresion_postfijo(compiladorParser.Expresion_postfijoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExpresion_postfijo(compiladorParser.Expresion_postfijoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSufijo_postfijo(compiladorParser.Sufijo_postfijoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSufijo_postfijo(compiladorParser.Sufijo_postfijoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLista_argumentos(compiladorParser.Lista_argumentosContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLista_argumentos(compiladorParser.Lista_argumentosContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExpresion_primaria(compiladorParser.Expresion_primariaContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExpresion_primaria(compiladorParser.Expresion_primariaContext ctx) { }
+	@Override public void exitPrimario(compiladorParser.PrimarioContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

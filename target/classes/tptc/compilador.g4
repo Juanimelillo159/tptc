@@ -56,7 +56,7 @@ DOUBLE: 'double';
 FLOAT: 'float';
 CHAR: 'char';
 BOOL: 'bool';
-BOOLEAN: 'boolean'; // Mantener compatibilidad
+BOOLEAN: 'boolean';
 VOID: 'void';
 
 // Valores booleanos
@@ -82,7 +82,7 @@ DECIMAL: DIGITO+ '.' DIGITO+;
 CARACTER: '\'' . '\'';
 CADENA: '"' (~["\r\n])* '"';
 
-// Identificadores (deben ir después de las palabras reservadas)
+// Identificadores
 IDENTIFICADOR: LETRA (LETRA_DIGITO | '_')*;
 
 // Comentarios
@@ -92,130 +92,90 @@ COMENTARIO_BLOQUE: '/*' .*? '*/' -> skip;
 // Espacios en blanco
 WS: [ \t\n\r]+ -> skip;
 
-// Reglas del parser
+
 programa: instrucciones EOF;
 
 instrucciones: instruccion*;
 
 instruccion:
-	declaracion_variable
-	| instruccion_expresion
-	| instruccion_seleccion
-	| instruccion_iteracion
-	| instruccion_salto
-	| declaracion_funcion
-	| definicion_funcion
-	| declaracion_struct
-	| bloque;
+    declaracion_variable
+    | expresion PyC                    // Simplificado: expresiones
+    | bloque
+    | mientras  
+    | hacer_mientras
+    | retorno
+    | declaracion_funcion
+    | definicion_funcion
+    | declaracion_struct;
 
-// Declaraciones de variables
-declaracion_variable: tipo_completo lista_variables PyC;
+instruccionAnidada: 
+        instruccion
+    |   para
+    |   si;
 
-tipo_completo: CONST? tipo_base;
+// Declaraciones simplificadas
+declaracion_variable: tipo lista_variables PyC;
+tipo: CONST? tipo_base;
+tipo_base: INT | DOUBLE | FLOAT | CHAR | BOOL | BOOLEAN | VOID | IDENTIFICADOR;
 
-tipo_base:
-	INT
-	| DOUBLE
-	| FLOAT
-	| CHAR
-	| BOOL
-	| BOOLEAN // Mantener compatibilidad
-	| VOID
-	| IDENTIFICADOR ; // Para structs definidos por el usuario
+lista_variables: variable (COM variable)*;
+variable: IDENTIFICADOR (CA ENTERO CC)? (IGU expresion)?;
 
-lista_variables:
-	inicializacion_variable (COM inicializacion_variable)*;
-
-inicializacion_variable:
-	IDENTIFICADOR (CA ENTERO CC)? (IGU expresion)?;
-
-// Declaraciones de funciones
-declaracion_funcion:
-	tipo_base IDENTIFICADOR PA lista_parametros? PC PyC;
-
-definicion_funcion:
-	tipo_base IDENTIFICADOR PA lista_parametros? PC bloque;
-
-lista_parametros: parametro (COM parametro)*;
-
+// Funciones
+declaracion_funcion: tipo_base IDENTIFICADOR PA parametros? PC PyC;
+definicion_funcion: tipo_base IDENTIFICADOR PA parametros? PC bloque;
+parametros: parametro (COM parametro)*;
 parametro: tipo_base IDENTIFICADOR (CA CC)?;
 
-// Declaración de struct
-declaracion_struct:
-	STRUCT IDENTIFICADOR LA miembros_struct LC PyC;
-
+// Struct
+declaracion_struct: STRUCT IDENTIFICADOR LA miembros_struct LC PyC;
 miembros_struct: (tipo_base IDENTIFICADOR PyC)*;
 
-// Bloques de código
-bloque: LA instrucciones_bloque LC;
+// Bloques y statements de control - MÁS DIRECTOS
+bloque: LA instrucciones LC;
 
-instrucciones_bloque: instruccion*;
+si: IF PA expresion PC instruccion (ELSE instruccion)?;
 
-instruccion_expresion: expresion? PyC;
+mientras: WHILE PA expresion PC instruccion;
 
-instruccion_seleccion:
-	IF PA expresion PC instruccion (ELSE instruccion)?;
+para: FOR PA 
+    (declaracion_variable | expresion? PyC)  // init
+    expresion? PyC                           // condition  
+    expresion?                               // increment
+    PC instruccion;
 
-instruccion_iteracion:
-	WHILE PA expresion PC instruccion
-	| FOR PA (declaracion_variable | expresion_asignacion? PyC) expresion? PyC expresion? PC
-		instruccion
-	| DO instruccion WHILE PA expresion PC PyC;
+hacer_mientras: DO instruccion WHILE PA expresion PC PyC;
 
-instruccion_salto: RETURN expresion? PyC;
+retorno: RETURN expresion? PyC;
 
-// Expresiones
-expresion: expresion_asignacion;
+// ============ EXPRESIONES OPTIMIZADAS ============
+// Eliminamos niveles intermedios innecesarios y combinamos reglas similares
 
-expresion_asignacion:
-	expresion_logica_o
-	| expresion_unaria operador_asignacion expresion_asignacion;
+expresion: 
+    expresion operador_asignacion expresion        // Asignación (asociativa derecha)
+    | expresion OR expresion                       // OR lógico
+    | expresion AND expresion                      // AND lógico  
+    | expresion (EQ | NEQ) expresion              // Igualdad
+    | expresion (LT | LE | GT | GE) expresion     // Relacionales
+    | expresion (SUMA | RESTA) expresion          // Aditivos
+    | expresion (MULT | DIV | MOD) expresion      // Multiplicativos
+    | (INC | DEC) expresion                       // Pre-incremento/decremento
+    | expresion (INC | DEC)                       // Post-incremento/decremento  
+    | (SUMA | RESTA | NOT) expresion              // Unarios
+    | expresion CA expresion CC                   // Acceso array
+    | expresion PA argumentos? PC                 // Llamada función
+    | primario;                                   // Valores primarios
 
-operador_asignacion:
-	IGU
-	| SUMA_ASIG
-	| RESTA_ASIG
-	| MULT_ASIG
-	| DIV_ASIG;
+operador_asignacion: IGU | SUMA_ASIG | RESTA_ASIG | MULT_ASIG | DIV_ASIG;
 
-expresion_logica_o: expresion_logica_y (OR expresion_logica_y)*;
+argumentos: expresion (COM expresion)*;
 
-expresion_logica_y:
-	expresion_igualdad (AND expresion_igualdad)*;
-
-expresion_igualdad:
-	expresion_relacional ((EQ | NEQ) expresion_relacional)*;
-
-expresion_relacional:
-	expresion_aditiva ((LT | LE | GT | GE) expresion_aditiva)*;
-
-expresion_aditiva:
-	expresion_multiplicativa (
-		(SUMA | RESTA) expresion_multiplicativa
-	)*;
-
-expresion_multiplicativa:
-	expresion_unaria ((MULT | DIV | MOD) expresion_unaria)*;
-
-expresion_unaria: (INC | DEC) expresion_unaria
-	| expresion_unaria (INC | DEC)
-	| (SUMA | RESTA | NOT) expresion_unaria
-	| expresion_postfijo;
-
-expresion_postfijo: expresion_primaria (sufijo_postfijo)*;
-
-sufijo_postfijo:
-	CA expresion CC // Acceso a array
-	| PA lista_argumentos? PC ; // Llamada a función
-
-lista_argumentos: expresion (COM expresion)*;
-
-expresion_primaria:
-	IDENTIFICADOR
-	| ENTERO
-	| DECIMAL
-	| CARACTER
-	| CADENA
-	| TRUE
-	| FALSE
-	| PA expresion PC;
+primario:
+    IDENTIFICADOR
+    | ENTERO  
+    | DECIMAL
+    | CARACTER
+    | CADENA
+    | TRUE
+    | FALSE
+    | PA expresion PC;

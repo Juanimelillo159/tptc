@@ -1,6 +1,6 @@
-// Generated from e:/Users/juani/tc/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from c:/Users/juani/OneDrive - UNIVERSIDAD BLAS PASCAL/tc/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 
-package tptc;
+package compiladores;
 
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;

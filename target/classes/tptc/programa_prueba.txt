@@ -1,0 +1,61 @@
+// Programa de prueba para el analizador léxico
+
+int main() {
+    int numero = 42;
+    double precio = 19.99;
+    boolean activo = true;
+    
+    // Declaraciones múltiples
+    int a, b, c;
+    double x = 3.14, y, z = 2.71;
+    
+    // Asignaciones
+    numero = 100;
+    precio = numero + 25.5;
+    activo = false;
+    
+    // Estructura condicional
+    if (numero > 50) {
+        precio = precio * 2;
+    }
+    
+    // Bucle while
+    while (numero > 0) {
+        numero = numero - 1;
+    }
+    
+    // Bucle for
+    for (int i = 0; i < 10; i++) {
+        numero = numero + i;
+    }
+    
+    // Operaciones aritméticas
+    int resultado = (numero + 5) * 3 / 2;
+    double division = precio / numero;
+    int modulo = numero % 5;
+    
+    // Operadores de comparación
+    boolean mayor = numero > precio;
+    boolean igual = numero == 42;
+    boolean diferente = precio != 0.0;
+    boolean menorIgual = numero <= 100;
+    boolean mayorIgual = precio >= 0.0;
+    
+    // Operadores lógicos
+    boolean logico = (numero > 0) && (precio > 0.0);
+    boolean logico2 = activo || (numero == 0);
+    
+    return 0;
+}
+
+// Función con parámetros
+int calcular(int x, double y) {
+    int resultado = x * 2;
+    double temp = y + 1.5;
+    return resultado;
+}
+
+// Función sin parámetros
+double obtenerPi() {
+    return 3.14159;
+}

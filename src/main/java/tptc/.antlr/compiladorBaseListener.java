@@ -1,4 +1,4 @@
-// Generated from c:/Users/juani/OneDrive - UNIVERSIDAD BLAS PASCAL/tc/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from d:/Desktop/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 
@@ -50,6 +50,18 @@ public class compiladorBaseListener implements compiladorListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitInstruccion(compiladorParser.InstruccionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterInstruccionAnidada(compiladorParser.InstruccionAnidadaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitInstruccionAnidada(compiladorParser.InstruccionAnidadaContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

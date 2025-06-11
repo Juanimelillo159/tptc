@@ -1,4 +1,4 @@
-// Generated from c:/Users/juani/OneDrive - UNIVERSIDAD BLAS PASCAL/tc/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from d:/Desktop/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 
@@ -39,6 +39,16 @@ public interface compiladorListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitInstruccion(compiladorParser.InstruccionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link compiladorParser#instruccionAnidada}.
+	 * @param ctx the parse tree
+	 */
+	void enterInstruccionAnidada(compiladorParser.InstruccionAnidadaContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link compiladorParser#instruccionAnidada}.
+	 * @param ctx the parse tree
+	 */
+	void exitInstruccionAnidada(compiladorParser.InstruccionAnidadaContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link compiladorParser#declaracion_variable}.
 	 * @param ctx the parse tree

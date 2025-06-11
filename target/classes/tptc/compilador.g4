@@ -93,25 +93,29 @@ COMENTARIO_BLOQUE: '/*' .*? '*/' -> skip;
 WS: [ \t\n\r]+ -> skip;
 
 
-programa: instrucciones EOF;
+programa: definicion_funcion_main otras_definiciones* EOF;
+
+// La función main es obligatoria y debe retornar int (por convención)
+definicion_funcion_main: 
+    INT 'main' PA PC bloque;  // main sin parámetros (puedes ajustarlo si necesitas args)
+
+otras_definiciones:
+    declaracion_variable PyC
+    | declaracion_funcion PyC
+    | definicion_funcion
+    | declaracion_struct PyC;
 
 instrucciones: instruccion*;
 
 instruccion:
-    declaracion_variable
-    | expresion PyC                    // Simplificado: expresiones
+    declaracion_variable PyC
+    | expresion PyC
     | bloque
-    | mientras  
+    | si      // Solo permitido dentro de bloques (como en main)
+    | mientras
+    | para
     | hacer_mientras
-    | retorno
-    | declaracion_funcion
-    | definicion_funcion
-    | declaracion_struct;
-
-instruccionAnidada: 
-        instruccion
-    |   para
-    |   si;
+    | retorno;
 
 // Declaraciones simplificadas
 declaracion_variable: tipo lista_variables PyC;

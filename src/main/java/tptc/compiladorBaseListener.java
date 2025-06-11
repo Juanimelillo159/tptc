@@ -1,4 +1,4 @@
-// Generated from c:/Users/juani/OneDrive - UNIVERSIDAD BLAS PASCAL/tc/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from d:/Desktop/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 
@@ -31,6 +31,30 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDefinicion_funcion_main(compiladorParser.Definicion_funcion_mainContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDefinicion_funcion_main(compiladorParser.Definicion_funcion_mainContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOtras_definiciones(compiladorParser.Otras_definicionesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOtras_definiciones(compiladorParser.Otras_definicionesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterInstrucciones(compiladorParser.InstruccionesContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -50,18 +74,6 @@ public class compiladorBaseListener implements compiladorListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitInstruccion(compiladorParser.InstruccionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterInstruccionAnidada(compiladorParser.InstruccionAnidadaContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitInstruccionAnidada(compiladorParser.InstruccionAnidadaContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

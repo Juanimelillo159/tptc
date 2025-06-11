@@ -1,4 +1,4 @@
-// Generated from c:/Users/juani/OneDrive - UNIVERSIDAD BLAS PASCAL/tc/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from d:/Desktop/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 
@@ -19,6 +19,18 @@ public interface compiladorVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPrograma(compiladorParser.ProgramaContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link compiladorParser#definicion_funcion_main}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDefinicion_funcion_main(compiladorParser.Definicion_funcion_mainContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link compiladorParser#otras_definiciones}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOtras_definiciones(compiladorParser.Otras_definicionesContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link compiladorParser#instrucciones}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -30,12 +42,6 @@ public interface compiladorVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitInstruccion(compiladorParser.InstruccionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link compiladorParser#instruccionAnidada}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInstruccionAnidada(compiladorParser.InstruccionAnidadaContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link compiladorParser#declaracion_variable}.
 	 * @param ctx the parse tree

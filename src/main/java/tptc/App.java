@@ -14,6 +14,7 @@ public class App {
     // Configuración de análisis
     private static final boolean EJECUTAR_ANALISIS_LEXICO = true;
     private static final boolean EJECUTAR_ANALISIS_SINTACTICO = true;
+    private static final boolean EJECUTAR_ANALISIS_SEMANTICO = true;
     private static final boolean MOSTRAR_CONTENIDO_ARCHIVO = true;
     private static final boolean EXPORTAR_RESULTADOS = false;
 
@@ -80,12 +81,38 @@ public class App {
 
             }
 
+            // === NUEVA FASE 3: ANÁLISIS SEMÁNTICO ===
+            AnalizadorSemantico.ResultadoAnalisisSemantico resultadoSemantico = null;
+            if (EJECUTAR_ANALISIS_SEMANTICO && resultadoSintactico != null && resultadoSintactico.fueExitoso()) {
+            System.out.println("🧠 INICIANDO ANÁLISIS SEMÁNTICO...");
+            System.out.println("═".repeat(60));
+            
+            resultadoSemantico = AnalizadorSemantico.analizarArbol(
+                resultadoSintactico.getArbolSintactico()
+            );
+            
+            if (MODO_DETALLADO) {
+                ReportadorSemantico.mostrarReporteCompleto(ARCHIVO_A_ANALIZAR, resultadoSemantico);
+            } else {
+                ReportadorSemantico.mostrarReporteResumido(resultadoSemantico);
+            }
+            
+            if (!resultadoSemantico.fueExitoso()) {
+                exitoTotal = false;
+                System.out.println("⚠️  Se encontraron errores semánticos. El programa no es válido.");
+            }
+            
+            System.out.println();
+        } else if (EJECUTAR_ANALISIS_SEMANTICO && resultadoSintactico != null && !resultadoSintactico.fueExitoso()) {
+            System.out.println("⏭️  Análisis semántico omitido debido a errores sintácticos");
+        }
+
             // === RESUMEN FINAL ===
-            mostrarResumenFinal(resultadoLexico, resultadoSintactico, exitoTotal);
+             mostrarResumenFinal(resultadoLexico, resultadoSintactico, resultadoSemantico, exitoTotal);
 
             // === EXPORTAR RESULTADOS (OPCIONAL) ===
             if (EXPORTAR_RESULTADOS) {
-                exportarResultados(resultadoLexico, resultadoSintactico);
+                exportarResultados(resultadoLexico, resultadoSintactico, resultadoSemantico);
             }
 
             // Código de salida
@@ -131,7 +158,8 @@ public class App {
      * Muestra resumen final de ambos análisis
      */
     private static void mostrarResumenFinal(AnalizadorLexico.ResultadoAnalisis resultadoLexico,
-            AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico,
+            AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico, 
+            AnalizadorSemantico.ResultadoAnalisisSemantico resultadoSemantico,
             boolean exitoTotal) {
         System.out.println();
         System.out.println("╔══════════════════════════════════════════════════════════════╗");
@@ -164,6 +192,20 @@ public class App {
             }
         }
 
+        if (resultadoSemantico != null) {
+        String estadoSemantico = resultadoSemantico.fueExitoso() ? "✅ EXITOSO" : "❌ CON ERRORES";
+        System.out.printf("🧠 Análisis Semántico:  %s%n", estadoSemantico);
+        if (MOSTRAR_ESTADISTICAS) {
+            System.out.printf("   └─ Variables: %d | Funciones: %d | Errores: %d%n",
+                resultadoSemantico.getTotalVariables(),
+                resultadoSemantico.getTotalFunciones(),
+                resultadoSemantico.getTotalErrores());
+        }
+        } else if (EJECUTAR_ANALISIS_SEMANTICO) {
+        System.out.println("🧠 Análisis Semántico:  ⏭️  NO EJECUTADO (requiere análisis sintáctico exitoso)");
+        }
+
+
         System.out.println();
 
         // Estado general
@@ -184,7 +226,8 @@ public class App {
      * Exporta los resultados a archivos
      */
     private static void exportarResultados(AnalizadorLexico.ResultadoAnalisis resultadoLexico,
-            AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico) {
+            AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico,
+            AnalizadorSemantico.ResultadoAnalisisSemantico resultadoSemantico) {
         try {
             String baseNombre = ARCHIVO_A_ANALIZAR.replace(".txt", "").replace("/", "_");
 
@@ -196,6 +239,12 @@ public class App {
             if (resultadoSintactico != null) {
                 String archivoReporte = "reportes/" + baseNombre + "_sintactico.txt";
                 ReportadorSintactico.exportarReporte(ARCHIVO_A_ANALIZAR, resultadoSintactico, archivoReporte);
+            }
+
+            if (resultadoSemantico != null) {
+            String archivoReporte = "reportes/" + baseNombre + "_semantico.txt";
+            ReportadorSemantico.exportarReporte(ARCHIVO_A_ANALIZAR, resultadoSemantico, archivoReporte);
+            System.out.println("📁 Exportando resultados semánticos...");
             }
 
         } catch (Exception e) {

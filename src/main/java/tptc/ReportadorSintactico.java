@@ -22,7 +22,7 @@ public class ReportadorSintactico {
             mostrarErroresSintacticos(resultado.getErrores());
         }
 
-        mostrarPieReporte();
+    
     }
 
     /**
@@ -327,15 +327,5 @@ public class ReportadorSintactico {
             default:
                 return "🔹";
         }
-    }
-
-    private static void mostrarPieReporte() {
-        System.out.println();
-        System.out.println("═".repeat(60));
-        System.out.println("💡 Opciones adicionales:");
-        System.out.println("   • Exportar árbol: VisualizadorAST.exportarArbol()");
-        System.out.println("   • Generar DOT: VisualizadorAST.exportarADot()");
-        System.out.println("   • Ver análisis léxico: ejecutar con modo combinado");
-        System.out.println("═".repeat(60));
     }
 }

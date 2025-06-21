@@ -1,4 +1,4 @@
-// Generated from d:/Desktop/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from c:/Users/juani/Desktop/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 
@@ -20,6 +20,26 @@ public interface compiladorListener extends ParseTreeListener {
 	 */
 	void exitPrograma(compiladorParser.ProgramaContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link compiladorParser#definicion_funcion_main}.
+	 * @param ctx the parse tree
+	 */
+	void enterDefinicion_funcion_main(compiladorParser.Definicion_funcion_mainContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link compiladorParser#definicion_funcion_main}.
+	 * @param ctx the parse tree
+	 */
+	void exitDefinicion_funcion_main(compiladorParser.Definicion_funcion_mainContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link compiladorParser#otras_definiciones}.
+	 * @param ctx the parse tree
+	 */
+	void enterOtras_definiciones(compiladorParser.Otras_definicionesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link compiladorParser#otras_definiciones}.
+	 * @param ctx the parse tree
+	 */
+	void exitOtras_definiciones(compiladorParser.Otras_definicionesContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link compiladorParser#instrucciones}.
 	 * @param ctx the parse tree
 	 */
@@ -39,16 +59,6 @@ public interface compiladorListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitInstruccion(compiladorParser.InstruccionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link compiladorParser#instruccionAnidada}.
-	 * @param ctx the parse tree
-	 */
-	void enterInstruccionAnidada(compiladorParser.InstruccionAnidadaContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link compiladorParser#instruccionAnidada}.
-	 * @param ctx the parse tree
-	 */
-	void exitInstruccionAnidada(compiladorParser.InstruccionAnidadaContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link compiladorParser#declaracion_variable}.
 	 * @param ctx the parse tree

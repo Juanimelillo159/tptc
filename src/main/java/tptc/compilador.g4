@@ -4,23 +4,21 @@ grammar compilador;
 package tptc;
 }
 
-// Fragmentos
+// ============ FRAGMENTOS ============
 fragment DIGITO: [0-9];
 fragment LETRA: [a-zA-Z];
 fragment LETRA_DIGITO: [a-zA-Z0-9];
 
-// Tokens de delimitadores
+// ============ TOKENS - DELIMITADORES ============
 PA: '(';
 PC: ')';
 LA: '{';
 LC: '}';
-CA: '[';
-CC: ']';
 PyC: ';';
 IGU: '=';
 COM: ',';
 
-// Operadores de comparación
+// ============ OPERADORES DE COMPARACIÓN ============
 EQ: '==';
 NEQ: '!=';
 LT: '<';
@@ -28,158 +26,112 @@ LE: '<=';
 GT: '>';
 GE: '>=';
 
-// Operadores lógicos
+// ============ OPERADORES LÓGICOS ============
 AND: '&&';
 OR: '||';
 NOT: '!';
 
-// Operadores aritméticos
+// ============ OPERADORES ARITMÉTICOS ============
 SUMA: '+';
 RESTA: '-';
 MULT: '*';
 DIV: '/';
 MOD: '%';
 
-// Operadores de incremento/decremento
-INC: '++';
-DEC: '--';
-
-// Operadores de asignación compuesta
+// ============ OPERADORES DE ASIGNACIÓN ============
 SUMA_ASIG: '+=';
-RESTA_ASIG: '-=';
-MULT_ASIG: '*=';
-DIV_ASIG: '/=';
 
-// Tipos de datos
+// ============ TIPOS DE DATOS ============
 INT: 'int';
 DOUBLE: 'double';
-FLOAT: 'float';
 CHAR: 'char';
-BOOL: 'bool';
-BOOLEAN: 'boolean';
 VOID: 'void';
+BOOL: 'bool';
 
-// Valores booleanos
+// ============ VALORES BOOLEANOS ============
 TRUE: 'true';
 FALSE: 'false';
 
-// Palabras reservadas de control
+// ============ PALABRAS RESERVADAS ============
 IF: 'if';
 ELSE: 'else';
 WHILE: 'while';
 FOR: 'for';
-DO: 'do';
 RETURN: 'return';
+BREAK: 'break';
+CONTINUE: 'continue';
 
-// Otros keywords
-CONST: 'const';
-STRUCT: 'struct';
-ENUM: 'enum';
-
-// Literales
+// ============ LITERALES ============
 ENTERO: DIGITO+;
 DECIMAL: DIGITO+ '.' DIGITO+;
 CARACTER: '\'' . '\'';
-CADENA: '"' (~["\r\n])* '"';
 
-// Identificadores
+// ============ IDENTIFICADORES ============
 IDENTIFICADOR: LETRA (LETRA_DIGITO | '_')*;
 
-// Comentarios
+// ============ COMENTARIOS Y ESPACIOS ============
 COMENTARIO_LINEA: '//' ~[\r\n]* -> skip;
 COMENTARIO_BLOQUE: '/*' .*? '*/' -> skip;
-
-// Espacios en blanco
 WS: [ \t\n\r]+ -> skip;
 
+// ============ REGLAS DE PARSER SIMPLIFICADAS ============
 
-programa: definicion_funcion_main otras_definiciones* EOF;
+programa: definicion_funcion_main definicion_funcion* EOF;
 
-// La función main es obligatoria y debe retornar int (por convención)
-definicion_funcion_main: 
-    INT 'main' PA PC bloque;  // main sin parámetros (puedes ajustarlo si necesitas args)
+definicion_funcion_main: INT 'main' PA PC bloque;
 
-otras_definiciones:
-    declaracion_variable PyC
-    | declaracion_funcion PyC
-    | definicion_funcion
-    | declaracion_struct PyC;
+definicion_funcion: tipo IDENTIFICADOR PA parametros? PC bloque;
 
-instrucciones: instruccion*;
+parametros: parametro (COM parametro)*;
+parametro: tipo IDENTIFICADOR;
+
+tipo: INT | CHAR | DOUBLE | VOID | BOOL;
+
+bloque: LA instruccion* LC;
 
 instruccion:
     declaracion_variable PyC
+    | asignacion PyC
     | expresion PyC
-    | bloque
-    | si      // Solo permitido dentro de bloques (como en main)
+    | si
     | mientras
     | para
-    | hacer_mientras
-    | retorno;
+    | retorno PyC
+    | BREAK PyC
+    | CONTINUE PyC
+    | bloque;
 
-// Declaraciones simplificadas
-declaracion_variable: tipo lista_variables PyC;
-tipo: CONST? tipo_base;
-tipo_base: INT | DOUBLE | FLOAT | CHAR | BOOL | BOOLEAN | VOID | IDENTIFICADOR;
-
-lista_variables: variable (COM variable)*;
-variable: IDENTIFICADOR (CA ENTERO CC)? (IGU expresion)?;
-
-// Funciones
-declaracion_funcion: tipo_base IDENTIFICADOR PA parametros? PC PyC;
-definicion_funcion: tipo_base IDENTIFICADOR PA parametros? PC bloque;
-parametros: parametro (COM parametro)*;
-parametro: tipo_base IDENTIFICADOR (CA CC)?;
-
-// Struct
-declaracion_struct: STRUCT IDENTIFICADOR LA miembros_struct LC PyC;
-miembros_struct: (tipo_base IDENTIFICADOR PyC)*;
-
-// Bloques y statements de control - MÁS DIRECTOS
-bloque: LA instrucciones LC;
+declaracion_variable: tipo IDENTIFICADOR (IGU expresion)?;
 
 si: IF PA expresion PC instruccion (ELSE instruccion)?;
 
 mientras: WHILE PA expresion PC instruccion;
 
 para: FOR PA 
-    (declaracion_variable | expresion? PyC)  // init
-    expresion? PyC                           // condition  
-    expresion?                               // increment
+    (declaracion_variable | asignacion)? PyC
+    expresion? PyC
+    (asignacion | expresion)?
     PC instruccion;
 
-hacer_mientras: DO instruccion WHILE PA expresion PC PyC;
+retorno: RETURN expresion?;
 
-retorno: RETURN expresion? PyC;
+asignacion: IDENTIFICADOR (IGU | SUMA_ASIG) expresion;
 
-// ============ EXPRESIONES OPTIMIZADAS ============
-// Eliminamos niveles intermedios innecesarios y combinamos reglas similares
-
-expresion: 
-    expresion operador_asignacion expresion        // Asignación (asociativa derecha)
-    | expresion OR expresion                       // OR lógico
-    | expresion AND expresion                      // AND lógico  
-    | expresion (EQ | NEQ) expresion              // Igualdad
-    | expresion (LT | LE | GT | GE) expresion     // Relacionales
-    | expresion (SUMA | RESTA) expresion          // Aditivos
-    | expresion (MULT | DIV | MOD) expresion      // Multiplicativos
-    | (INC | DEC) expresion                       // Pre-incremento/decremento
-    | expresion (INC | DEC)                       // Post-incremento/decremento  
-    | (SUMA | RESTA | NOT) expresion              // Unarios
-    | expresion CA expresion CC                   // Acceso array
-    | expresion PA argumentos? PC                 // Llamada función
-    | primario;                                   // Valores primarios
-
-operador_asignacion: IGU | SUMA_ASIG | RESTA_ASIG | MULT_ASIG | DIV_ASIG;
-
-argumentos: expresion (COM expresion)*;
-
-primario:
-    IDENTIFICADOR
-    | ENTERO  
+// ============ EXPRESIONES ULTRA-SIMPLIFICADAS ============
+expresion:
+    expresion OR expresion
+    | expresion AND expresion
+    | expresion (EQ | NEQ | LT | LE | GT | GE) expresion
+    | expresion (SUMA | RESTA) expresion
+    | expresion (MULT | DIV | MOD) expresion
+    | (SUMA | RESTA | NOT) expresion
+    | IDENTIFICADOR PA argumentos? PC  // llamada función
+    | IDENTIFICADOR
+    | ENTERO
     | DECIMAL
     | CARACTER
-    | CADENA
     | TRUE
     | FALSE
     | PA expresion PC;
+
+argumentos: expresion (COM expresion)*;

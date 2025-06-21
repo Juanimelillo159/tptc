@@ -3,8 +3,9 @@ package tptc;
 import java.io.*;
 
 /**
- * Punto de entrada principal del compilador C++
- * Integra análisis léxico y sintáctico
+ * Punto de entrada principal del compilador C++ con detección mejorada de
+ * errores léxicos
+ * Integra análisis léxico y sintáctico con mejor control de flujo
  */
 public class App {
 
@@ -21,11 +22,14 @@ public class App {
     private static final boolean MODO_DETALLADO = true;
     private static final boolean MOSTRAR_ESTADISTICAS = true;
 
+    // ⭐ NUEVA CONFIGURACIÓN ⭐
+    private static final boolean DETENER_EN_ERRORES_LEXICOS = true; // Si debe parar en errores léxicos
+
     public static void main(String[] args) {
         System.out.println("╔══════════════════════════════════════════════════════════════╗");
-        System.out.println("║                    COMPILADOR C++ - TPTC                    ║");
-        System.out.println("║              Análisis Léxico y Sintáctico                   ║");
-        System.out.println("║                 Técnicas de Compilación                     ║");
+        System.out.println("║                COMPILADOR C++ MEJORADO - TPTC               ║");
+        System.out.println("║          Análisis Léxico y Sintáctico con Detección         ║");
+        System.out.println("║               Mejorada de Errores Léxicos                   ║");
         System.out.println("╚══════════════════════════════════════════════════════════════╝");
         System.out.println();
 
@@ -42,7 +46,7 @@ public class App {
             // === FASE 1: ANÁLISIS LÉXICO ===
             AnalizadorLexico.ResultadoAnalisis resultadoLexico = null;
             if (EJECUTAR_ANALISIS_LEXICO) {
-                System.out.println("🔍 INICIANDO ANÁLISIS LÉXICO...");
+                System.out.println("🔍 INICIANDO ANÁLISIS LÉXICO MEJORADO...");
                 System.out.println("═".repeat(60));
 
                 resultadoLexico = AnalizadorLexico.analizarCodigo(contenidoArchivo);
@@ -55,7 +59,23 @@ public class App {
 
                 if (!resultadoLexico.fueExitoso()) {
                     exitoTotal = false;
-                    System.out.println("⚠️  Se encontraron errores léxicos. El análisis sintáctico puede fallar.");
+                    System.out
+                            .println("⚠️  Se encontraron " + resultadoLexico.getTokensConError() + " errores léxicos.");
+
+                    if (DETENER_EN_ERRORES_LEXICOS) {
+                        System.out.println("🛑 DETENIENDO COMPILACIÓN por errores léxicos.");
+                        System.out.println("💡 Corrija los errores léxicos antes de continuar.");
+                        System.out.println();
+                        mostrarResumenFinal(resultadoLexico, null, false);
+                        System.exit(1);
+                        return;
+                    } else {
+                        System.out
+                                .println("⚡ Continuando con análisis sintáctico (puede generar errores adicionales).");
+                        System.out.println();
+                    }
+                } else {
+                    System.out.println("✅ Análisis léxico completado sin errores. Procediendo...");
                     System.out.println();
                 }
             }
@@ -77,7 +97,6 @@ public class App {
                 if (!resultadoSintactico.fueExitoso()) {
                     exitoTotal = false;
                 }
-
             }
 
             // === RESUMEN FINAL ===
@@ -128,7 +147,7 @@ public class App {
     }
 
     /**
-     * Muestra resumen final de ambos análisis
+     * Muestra resumen final de ambos análisis con información mejorada
      */
     private static void mostrarResumenFinal(AnalizadorLexico.ResultadoAnalisis resultadoLexico,
             AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico,
@@ -150,6 +169,10 @@ public class App {
                         resultadoLexico.getTotalTokens(),
                         resultadoLexico.getTokensConError(),
                         resultadoLexico.getPorcentajeExito());
+
+                if (!resultadoLexico.fueExitoso()) {
+                    System.out.println("   └─ Tipos de errores: " + resultadoLexico.getTiposErrores().size());
+                }
             }
         }
 
@@ -162,6 +185,9 @@ public class App {
                         resultadoSintactico.getProfundidadMaxima(),
                         resultadoSintactico.getTiempoAnalisis());
             }
+        } else if (resultadoLexico != null && !resultadoLexico.fueExitoso() && DETENER_EN_ERRORES_LEXICOS) {
+            System.out.printf("🌳 Análisis Sintáctico: ⏸️  NO EJECUTADO%n");
+            System.out.printf("   └─ Motivo: Errores léxicos detectados%n");
         }
 
         System.out.println();
@@ -173,8 +199,29 @@ public class App {
             System.out.println("🚀 Listo para las siguientes fases (semántico, generación de código)");
         } else {
             System.out.println("💥 COMPILACIÓN FALLIDA");
-            System.out.println("❌ Se encontraron errores que impiden continuar");
-            System.out.println("🔧 Corrige los errores antes de proceder");
+
+            if (resultadoLexico != null && !resultadoLexico.fueExitoso()) {
+                System.out.println("❌ Se encontraron errores léxicos que impiden continuar");
+                System.out.println("🔧 Corrija los errores léxicos antes de proceder");
+            } else if (resultadoSintactico != null && !resultadoSintactico.fueExitoso()) {
+                System.out.println("❌ Se encontraron errores sintácticos");
+                System.out.println("🔧 Corrija los errores sintácticos antes de proceder");
+            }
+        }
+
+        // Recomendaciones
+        if (!exitoTotal) {
+            System.out.println();
+            System.out.println("💡 RECOMENDACIONES:");
+            if (resultadoLexico != null && !resultadoLexico.fueExitoso()) {
+                System.out.println("   1. Revise los identificadores que comienzan con números");
+                System.out.println("   2. Verifique la sintaxis de números decimales");
+                System.out.println("   3. Asegúrese de que los caracteres estén bien formados");
+            }
+            if (resultadoSintactico != null && !resultadoSintactico.fueExitoso()) {
+                System.out.println("   4. Revise la estructura del programa (llaves, paréntesis, puntos y coma)");
+                System.out.println("   5. Verifique la sintaxis de bucles for");
+            }
         }
 
         System.out.println();
@@ -189,8 +236,8 @@ public class App {
             String baseNombre = ARCHIVO_A_ANALIZAR.replace(".txt", "").replace("/", "_");
 
             if (resultadoLexico != null) {
-                // Aquí podrías exportar resultados léxicos si implementas el método
-                System.out.println("📁 Exportando resultados léxicos...");
+                String archivoLexico = "reportes/" + baseNombre + "_lexico.txt";
+                exportarReporteLexico(ARCHIVO_A_ANALIZAR, resultadoLexico, archivoLexico);
             }
 
             if (resultadoSintactico != null) {
@@ -204,8 +251,52 @@ public class App {
     }
 
     /**
-     * Maneja errores de archivo
+     * Exporta reporte léxico a archivo
      */
+    private static void exportarReporteLexico(String nombreArchivo,
+            AnalizadorLexico.ResultadoAnalisis resultado, String rutaExportacion) {
+        try (java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.FileWriter(rutaExportacion))) {
+            writer.println("REPORTE DE ANÁLISIS LÉXICO MEJORADO");
+            writer.println("Archivo analizado: " + nombreArchivo);
+            writer.println("Fecha: " + new java.util.Date());
+            writer.println("=".repeat(60));
+            writer.println();
+
+            writer.println("RESUMEN:");
+            writer.println("Estado: " + (resultado.fueExitoso() ? "EXITOSO" : "CON ERRORES"));
+            writer.println("Total de tokens: " + resultado.getTotalTokens());
+            writer.println("Tokens válidos: " + resultado.getTokensValidos());
+            writer.println("Tokens con error: " + resultado.getTokensConError());
+            writer.println("Porcentaje de éxito: " + String.format("%.1f%%", resultado.getPorcentajeExito()));
+            writer.println();
+
+            if (!resultado.fueExitoso()) {
+                writer.println("ERRORES ENCONTRADOS:");
+                writer.println("-".repeat(40));
+                for (AnalizadorLexico.TokenInfo token : resultado.getTokens()) {
+                    if (token.esError()) {
+                        writer.printf("Línea %d, Col %d: '%s' - %s%n",
+                                token.getLinea(), token.getColumna(), token.getLexema(), token.getMensajeError());
+                    }
+                }
+                writer.println();
+            }
+
+            writer.println("DETALLE DE TOKENS:");
+            writer.println("-".repeat(40));
+            for (AnalizadorLexico.TokenInfo token : resultado.getTokens()) {
+                String estado = token.esError() ? "ERROR" : "OK";
+                writer.printf("%d. '%s' (%s) - Línea %d, Col %d [%s]%n",
+                        token.getNumero(), token.getLexema(), token.getTipo(),
+                        token.getLinea(), token.getColumna(), estado);
+            }
+
+            System.out.println("✅ Reporte léxico exportado a: " + rutaExportacion);
+
+        } catch (java.io.IOException e) {
+            System.err.println("❌ Error al exportar reporte léxico: " + e.getMessage());
+        }
+    }
 
     /**
      * Maneja errores generales
@@ -221,10 +312,15 @@ public class App {
         System.err.println("🔍 Posibles causas:");
         System.err.println("   • Archivos ANTLR no compilados correctamente");
         System.err.println("   • Dependencias faltantes");
-        System.err.println("   • Archivo de entrada corrupto");
+        System.err.println("   • Archivo de entrada corrupto o no encontrado");
 
         if (e.getMessage() != null && e.getMessage().contains("ClassNotFoundException")) {
             System.err.println("   • Ejecuta: javac -cp \".;antlr-4.13.1-complete.jar\" tptc\\*.java");
+        }
+
+        if (e instanceof FileNotFoundException) {
+            System.err.println("   • Verifica que el archivo '" + ARCHIVO_A_ANALIZAR + "' existe");
+            System.err.println("   • Crea el directorio 'input/' si no existe");
         }
 
         System.err.println();

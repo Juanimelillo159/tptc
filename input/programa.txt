@@ -29,7 +29,7 @@ int main() {
     bool negacion = !b;
     
     // ===== IF-ELSE =====
-    if (a > 8) {
+    if@ (a > 8) {
         suma = a + 1;
     } else {
         suma = a - 1;

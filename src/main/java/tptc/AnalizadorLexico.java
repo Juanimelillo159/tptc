@@ -3,12 +3,19 @@ package tptc;
 import org.antlr.v4.runtime.*;
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
- * Analizador Léxico para el compilador C++
- * Responsabilidad: Procesar código fuente y generar tabla de tokens
+ * Analizador Léxico Mejorado para el compilador C++
+ * Responsabilidad: Procesar código fuente y detectar errores léxicos
+ * específicos
  */
 public class AnalizadorLexico {
+
+    // Patrones para detectar errores léxicos comunes
+    private static final Pattern IDENTIFICADOR_INVALIDO_PATTERN = Pattern.compile("\\d+[a-zA-Z_][a-zA-Z0-9_]*");
+    private static final Pattern DECIMAL_INVALIDO_PATTERN = Pattern.compile("\\d+\\.|\\.|\\d+\\.\\d*\\.\\d*");
+    private static final Pattern CARACTER_INVALIDO_PATTERN = Pattern.compile("'([^'\\r\\n]|\\\\.)*('')?|'");
 
     // Clase para almacenar información de cada token
     public static class TokenInfo {
@@ -18,6 +25,7 @@ public class AnalizadorLexico {
         private int linea;
         private int columna;
         private boolean esError;
+        private String mensajeError;
 
         public TokenInfo(int numero, String lexema, String tipo, int linea, int columna, boolean esError) {
             this.numero = numero;
@@ -26,6 +34,22 @@ public class AnalizadorLexico {
             this.linea = linea;
             this.columna = columna;
             this.esError = esError;
+            this.mensajeError = esError ? generarMensajeError(lexema, tipo) : null;
+        }
+
+        private String generarMensajeError(String lexema, String tipo) {
+            switch (tipo) {
+                case "IDENTIFICADOR_INVALIDO":
+                    return "Identificador inválido: no puede comenzar con dígitos";
+                case "DECIMAL_INVALIDO":
+                    return "Número decimal mal formado";
+                case "CARACTER_INVALIDO":
+                    return "Literal de carácter mal formado";
+                case "ERROR_LEXICO":
+                    return "Secuencia de caracteres no reconocida";
+                default:
+                    return "Token no válido";
+            }
         }
 
         // Getters
@@ -52,6 +76,10 @@ public class AnalizadorLexico {
         public boolean esError() {
             return esError;
         }
+
+        public String getMensajeError() {
+            return mensajeError;
+        }
     }
 
     // Clase para almacenar resultados del análisis
@@ -62,6 +90,7 @@ public class AnalizadorLexico {
         private int tokensConError;
         private Map<String, Integer> distribucionTipos;
         private boolean exitoso;
+        private List<String> tiposErrores;
 
         public ResultadoAnalisis(List<TokenInfo> tokens, Map<String, Integer> distribucionTipos) {
             this.tokens = tokens;
@@ -70,6 +99,17 @@ public class AnalizadorLexico {
             this.tokensConError = (int) tokens.stream().mapToInt(t -> t.esError() ? 1 : 0).sum();
             this.tokensValidos = totalTokens - tokensConError;
             this.exitoso = tokensConError == 0;
+            this.tiposErrores = calcularTiposErrores();
+        }
+
+        private List<String> calcularTiposErrores() {
+            Set<String> tipos = new HashSet<>();
+            for (TokenInfo token : tokens) {
+                if (token.esError()) {
+                    tipos.add(token.getMensajeError());
+                }
+            }
+            return new ArrayList<>(tipos);
         }
 
         // Getters
@@ -95,6 +135,10 @@ public class AnalizadorLexico {
 
         public boolean fueExitoso() {
             return exitoso;
+        }
+
+        public List<String> getTiposErrores() {
+            return tiposErrores;
         }
 
         public double getPorcentajeExito() {
@@ -133,7 +177,7 @@ public class AnalizadorLexico {
     }
 
     /**
-     * Procesa los tokens del código fuente
+     * Procesa los tokens del código fuente con detección mejorada de errores
      */
     private static ResultadoAnalisis procesarTokens(CharStream input) {
         compiladorLexer lexer = new compiladorLexer(input);
@@ -151,20 +195,44 @@ public class AnalizadorLexico {
             int linea = token.getLine();
             int columna = token.getCharPositionInLine() + 1;
 
-            // Determinar si es un error léxico
-            boolean esError = esTokenError(lexema, tipoToken);
+            // Determinar si es un error léxico usando el tipo del token y validaciones
+            // adicionales
+            boolean esError = esTokenError(lexema, tipoToken) || validarErroresEspecificos(lexema);
 
             // Crear información del token
             TokenInfo info = new TokenInfo(numeroToken, lexema, tipoToken, linea, columna, esError);
             tokens.add(info);
 
             // Contar tipos de tokens
-            conteoTipos.put(tipoToken, conteoTipos.getOrDefault(tipoToken, 0) + 1);
+            String tipoConteo = esError ? "ERROR_" + tipoToken : tipoToken;
+            conteoTipos.put(tipoConteo, conteoTipos.getOrDefault(tipoConteo, 0) + 1);
 
             numeroToken++;
         }
 
         return new ResultadoAnalisis(tokens, conteoTipos);
+    }
+
+    /**
+     * Validaciones específicas para errores léxicos comunes
+     */
+    private static boolean validarErroresEspecificos(String lexema) {
+        // Validar identificadores que empiezan con número
+        if (IDENTIFICADOR_INVALIDO_PATTERN.matcher(lexema).matches()) {
+            return true;
+        }
+
+        // Validar decimales mal formados
+        if (DECIMAL_INVALIDO_PATTERN.matcher(lexema).matches()) {
+            return true;
+        }
+
+        // Validar caracteres mal formados
+        if (CARACTER_INVALIDO_PATTERN.matcher(lexema).matches()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -189,11 +257,17 @@ public class AnalizadorLexico {
      * Determina si un token es un error léxico
      */
     private static boolean esTokenError(String lexema, String tipo) {
-        // Considerar como error si:
-        // 1. El tipo es desconocido
-        // 2. Contiene caracteres claramente inválidos
-        return tipo.equals("DESCONOCIDO") ||
-                lexema.matches(".*[@#$^~`].*"); // Caracteres no válidos en la gramática
+        // Tipos específicos de error definidos en la gramática
+        Set<String> tiposError = Set.of(
+                "IDENTIFICADOR_INVALIDO",
+                "DECIMAL_INVALIDO",
+                "CARACTER_INVALIDO",
+                "ERROR_LEXICO",
+                "DESCONOCIDO");
+
+        return tiposError.contains(tipo) ||
+                tipo.equals("DESCONOCIDO") ||
+                lexema.matches(".*[@#$^~`].*"); // Caracteres claramente inválidos
     }
 
     /**

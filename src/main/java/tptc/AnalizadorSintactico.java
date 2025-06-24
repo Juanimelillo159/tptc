@@ -96,6 +96,7 @@ public class AnalizadorSintactico {
         private long tiempoAnalisis;
         private int numeroNodos;
         private int profundidadMaxima;
+         private List<String> codigoIntermedio;
         
         public ResultadoAnalisisSintactico(ParseTree arbol, List<ErrorSintactico> errores, 
                                          long tiempoAnalisis) {
@@ -105,6 +106,18 @@ public class AnalizadorSintactico {
             this.tiempoAnalisis = tiempoAnalisis;
             this.numeroNodos = contarNodos(arbol);
             this.profundidadMaxima = calcularProfundidad(arbol);
+             this.codigoIntermedio = generarCodigoIntermedio(arbol);
+        }
+
+        private List<String> generarCodigoIntermedio(ParseTree arbol) {
+        if (!exitoso) return new ArrayList<>();
+        GeneradorCodigoIntermedio generador = new GeneradorCodigoIntermedio();
+        generador.visit(arbol);
+        return generador.getCodigoIntermedio();
+        }
+
+        public List<String> getCodigoIntermedio() {
+            return codigoIntermedio;
         }
         
         private int contarNodos(ParseTree nodo) {
@@ -272,4 +285,5 @@ public class AnalizadorSintactico {
         }
         return contenido.toString();
     }
+    
 }

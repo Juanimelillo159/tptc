@@ -18,6 +18,7 @@ public class ReportadorSintactico {
 
         if (resultado.fueExitoso()) {
             mostrarEstadisticasDetalladas(resultado);
+            mostrarCodigoIntermedio(resultado.getCodigoIntermedio());
         } else {
             mostrarErroresSintacticos(resultado.getErrores());
         }
@@ -184,6 +185,15 @@ public class ReportadorSintactico {
 
         // Mostrar resumen de tipos de errores más comunes
         mostrarResumenTiposErrores(errores);
+    }
+
+    private static void mostrarCodigoIntermedio(List<String> codigo) {
+        if (codigo == null || codigo.isEmpty()) return;
+    
+        System.out.println("\n🔄 CÓDIGO INTERMEDIO GENERADO (3AC):");
+        System.out.println("═".repeat(60));
+        codigo.forEach(linea -> System.out.println("  " + linea));
+        System.out.println("═".repeat(60));
     }
 
     private static void mostrarEstadisticasDetalladas(AnalizadorSintactico.ResultadoAnalisisSintactico resultado) {

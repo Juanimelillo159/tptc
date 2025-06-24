@@ -1,4 +1,4 @@
-// Generated from c:/Users/juani/Desktop/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from d:/Desktop/informatica 5 año/Tecnicas de compilación/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 

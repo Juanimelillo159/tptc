@@ -1,0 +1,90 @@
+// ===== FUNCIONES =====
+int suma_simple(int x, int y) {
+    return x + y;
+}
+
+char obtener_letra(double nota) {
+    if (nota > 3.0) {
+        return 'A';
+    } else {
+        return 'B';
+    }
+}
+
+void mostrar(int valor) {
+    int temp = valor;
+}
+// Función main obligatoria - SIEMPRE PRIMERO
+int main() {
+    // ===== TIPOS DE DATOS =====
+    int a = 5;
+    char c = 'A';
+    double d = 3.14;
+    bool b = true;
+    
+    // ===== ASIGNACIONES =====
+    a = 10;
+    c = 'B';
+    d = 2.5;
+    b = false;
+    a += 3;
+    
+    // ===== EXPRESIONES ARITMÉTICAS =====
+    int suma = a + 2;
+    int resta = a - 1;
+    int mult = a * 3;
+    int div = a / 2;
+    int mod = a % 3;
+    
+    // ===== EXPRESIONES LÓGICAS =====
+    bool comp1 = a > 5;
+    bool comp2 = a == 10;
+    bool comp3 = a != 8;
+    bool logico = comp1 && comp2;
+    bool o_logico = comp1 || comp3;
+    bool negacion = !b;
+    
+    // ===== IF-ELSE =====
+    if (a > 8) {
+        suma = a + 1;
+    } else {
+        suma = a - 1;
+    }
+    
+    if (b) {
+        a = 100;
+    }
+    
+    // ===== WHILE =====
+    int i = 0;
+    while (i < 3) {
+        suma += i;
+        i += 1;
+        if (i == 2) {
+            continue;
+        }
+        if (suma > 50) {
+            break;
+        }
+    }
+    
+    // ===== FOR =====
+    for (int j = 0; j < 3 ; j += 1) {
+        suma += j;
+        if (j == 1) {
+            continue;
+        }
+        if (suma > 100) {
+            break;
+        }
+    }
+    
+    // ===== LLAMADAS A FUNCIÓN =====
+    int resultado = suma_simple(a, 5);
+    char grado = obtener_letra(d);
+    mostrar(resultado);
+    
+    // ===== RETORNO =====
+    return 0;
+}
+

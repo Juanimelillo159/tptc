@@ -2,10 +2,10 @@ package tptc;
 
 import java.io.*;
 
+
 /**
- * Punto de entrada principal del compilador C++ con detección mejorada de
- * errores léxicos
- * Integra análisis léxico y sintáctico con mejor control de flujo
+ * Punto de entrada principal del compilador C++ con análisis léxico, sintáctico
+ * y semántico
  */
 public class App {
 
@@ -15,21 +15,26 @@ public class App {
     // Configuración de análisis
     private static final boolean EJECUTAR_ANALISIS_LEXICO = true;
     private static final boolean EJECUTAR_ANALISIS_SINTACTICO = true;
+    private static final boolean EJECUTAR_ANALISIS_SEMANTICO = true;
     private static final boolean MOSTRAR_CONTENIDO_ARCHIVO = true;
     private static final boolean EXPORTAR_RESULTADOS = false;
 
     // Configuración de presentación
     private static final boolean MODO_DETALLADO = true;
     private static final boolean MOSTRAR_ESTADISTICAS = true;
+    private static final boolean MOSTRAR_TABLA_SIMBOLOS = true;
 
-    // ⭐ NUEVA CONFIGURACIÓN ⭐
-    private static final boolean DETENER_EN_ERRORES_LEXICOS = true; // Si debe parar en errores léxicos
+    // ⭐ NUEVA CONFIGURACIÓN SEMÁNTICA ⭐
+    private static final boolean DETENER_EN_ERRORES_LEXICOS = true;
+    private static final boolean DETENER_EN_ERRORES_SINTACTICOS = true;
+    private static final boolean MOSTRAR_WARNINGS = true;
 
     public static void main(String[] args) {
         System.out.println("╔══════════════════════════════════════════════════════════════╗");
-        System.out.println("║                COMPILADOR C++ MEJORADO - TPTC               ║");
-        System.out.println("║          Análisis Léxico y Sintáctico con Detección         ║");
-        System.out.println("║               Mejorada de Errores Léxicos                   ║");
+        System.out.println("║            COMPILADOR C++ COMPLETO - TPTC v2.0              ║");
+        System.out.println("║     Análisis Léxico, Sintáctico y Semántico Integrado      ║");
+        System.out.println("║            con Tabla de Símbolos y Detección                ║");
+        System.out.println("║               de Errores Críticos y Warnings                ║");
         System.out.println("╚══════════════════════════════════════════════════════════════╝");
         System.out.println();
 
@@ -43,10 +48,14 @@ public class App {
 
             boolean exitoTotal = true;
 
-            // === FASE 1: ANÁLISIS LÉXICO ===
+            // Variables para almacenar resultados
             AnalizadorLexico.ResultadoAnalisis resultadoLexico = null;
+            AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico = null;
+            AnalizadorSemantico.ResultadoAnalisisSemantico resultadoSemantico = null;
+
+            // === FASE 1: ANÁLISIS LÉXICO ===
             if (EJECUTAR_ANALISIS_LEXICO) {
-                System.out.println("🔍 INICIANDO ANÁLISIS LÉXICO MEJORADO...");
+                System.out.println("🔍 INICIANDO ANÁLISIS LÉXICO...");
                 System.out.println("═".repeat(60));
 
                 resultadoLexico = AnalizadorLexico.analizarCodigo(contenidoArchivo);
@@ -64,24 +73,17 @@ public class App {
 
                     if (DETENER_EN_ERRORES_LEXICOS) {
                         System.out.println("🛑 DETENIENDO COMPILACIÓN por errores léxicos.");
-                        System.out.println("💡 Corrija los errores léxicos antes de continuar.");
-                        System.out.println();
-                        mostrarResumenFinal(resultadoLexico, null, false);
+                        mostrarResumenFinal(resultadoLexico, null, null, false);
                         System.exit(1);
                         return;
-                    } else {
-                        System.out
-                                .println("⚡ Continuando con análisis sintáctico (puede generar errores adicionales).");
-                        System.out.println();
                     }
                 } else {
                     System.out.println("✅ Análisis léxico completado sin errores. Procediendo...");
-                    System.out.println();
                 }
+                System.out.println();
             }
 
             // === FASE 2: ANÁLISIS SINTÁCTICO ===
-            AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico = null;
             if (EJECUTAR_ANALISIS_SINTACTICO) {
                 System.out.println("🌳 INICIANDO ANÁLISIS SINTÁCTICO...");
                 System.out.println("═".repeat(60));
@@ -96,15 +98,60 @@ public class App {
 
                 if (!resultadoSintactico.fueExitoso()) {
                     exitoTotal = false;
+                    System.out.println(
+                            "⚠️  Se encontraron " + resultadoSintactico.getErrores().size() + " errores sintácticos.");
+
+                    if (DETENER_EN_ERRORES_SINTACTICOS) {
+                        System.out.println("🛑 DETENIENDO COMPILACIÓN por errores sintácticos.");
+                        mostrarResumenFinal(resultadoLexico, resultadoSintactico, null, false);
+                        System.exit(1);
+                        return;
+                    }
+                } else {
+                    System.out.println("✅ Análisis sintáctico completado sin errores. Procediendo...");
                 }
+                System.out.println();
+            }
+
+            // === FASE 3: ANÁLISIS SEMÁNTICO ===
+            if (EJECUTAR_ANALISIS_SEMANTICO && resultadoSintactico != null && resultadoSintactico.fueExitoso()) {
+                System.out.println("🧠 INICIANDO ANÁLISIS SEMÁNTICO...");
+                System.out.println("═".repeat(60));
+
+                resultadoSemantico = AnalizadorSemantico.analizar(resultadoSintactico.getArbolSintactico());
+
+                if (MODO_DETALLADO) {
+                    ReportadorSemantico.mostrarReporteCompleto(ARCHIVO_A_ANALIZAR, resultadoSemantico);
+                } else {
+                    ReportadorSemantico.mostrarReporteResumido(resultadoSemantico);
+                }
+
+                if (!resultadoSemantico.fueExitoso()) {
+                    exitoTotal = false;
+                    System.out.println(
+                            "⚠️  Se encontraron " + resultadoSemantico.getNumeroErrores() + " errores semánticos.");
+                } else {
+                    System.out.println("✅ Análisis semántico completado sin errores.");
+
+                    if (resultadoSemantico.getNumeroWarnings() > 0 && MOSTRAR_WARNINGS) {
+                        System.out.println("⚠️  Se encontraron " + resultadoSemantico.getNumeroWarnings()
+                                + " warnings (no críticos).");
+                    }
+                }
+
+
+            } else if (EJECUTAR_ANALISIS_SEMANTICO) {
+                System.out.println("⏸️  ANÁLISIS SEMÁNTICO OMITIDO");
+                System.out.println("   Motivo: Errores en fases anteriores impiden el análisis semántico");
+                System.out.println();
             }
 
             // === RESUMEN FINAL ===
-            mostrarResumenFinal(resultadoLexico, resultadoSintactico, exitoTotal);
+            mostrarResumenFinal(resultadoLexico, resultadoSintactico, resultadoSemantico, exitoTotal);
 
             // === EXPORTAR RESULTADOS (OPCIONAL) ===
             if (EXPORTAR_RESULTADOS) {
-                exportarResultados(resultadoLexico, resultadoSintactico);
+                exportarResultados(resultadoLexico, resultadoSintactico, resultadoSemantico);
             }
 
             // Código de salida
@@ -147,11 +194,13 @@ public class App {
     }
 
     /**
-     * Muestra resumen final de ambos análisis con información mejorada
+     * Muestra resumen final mejorado con información de todas las fases
      */
     private static void mostrarResumenFinal(AnalizadorLexico.ResultadoAnalisis resultadoLexico,
             AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico,
+            AnalizadorSemantico.ResultadoAnalisisSemantico resultadoSemantico,
             boolean exitoTotal) {
+
         System.out.println();
         System.out.println("╔══════════════════════════════════════════════════════════════╗");
         System.out.println("║                      RESUMEN FINAL                          ║");
@@ -159,8 +208,9 @@ public class App {
 
         // Resumen por fases
         System.out.println("📋 RESULTADOS POR FASE:");
-        System.out.println("─".repeat(40));
+        System.out.println("─".repeat(50));
 
+        // Análisis Léxico
         if (resultadoLexico != null) {
             String estadoLexico = resultadoLexico.fueExitoso() ? "✅ EXITOSO" : "❌ CON ERRORES";
             System.out.printf("🔍 Análisis Léxico:    %s%n", estadoLexico);
@@ -169,25 +219,34 @@ public class App {
                         resultadoLexico.getTotalTokens(),
                         resultadoLexico.getTokensConError(),
                         resultadoLexico.getPorcentajeExito());
-
-                if (!resultadoLexico.fueExitoso()) {
-                    System.out.println("   └─ Tipos de errores: " + resultadoLexico.getTiposErrores().size());
-                }
             }
         }
 
+        // Análisis Sintáctico
         if (resultadoSintactico != null) {
             String estadoSintactico = resultadoSintactico.fueExitoso() ? "✅ EXITOSO" : "❌ CON ERRORES";
             System.out.printf("🌳 Análisis Sintáctico: %s%n", estadoSintactico);
             if (MOSTRAR_ESTADISTICAS) {
-                System.out.printf("   └─ Nodos: %d | Profundidad: %d | Tiempo: %d ms%n",
+                System.out.printf("   └─ Nodos: %d | Errores: %d | Tiempo: %d ms%n",
                         resultadoSintactico.getNumeroNodos(),
-                        resultadoSintactico.getProfundidadMaxima(),
+                        resultadoSintactico.getErrores().size(),
                         resultadoSintactico.getTiempoAnalisis());
             }
-        } else if (resultadoLexico != null && !resultadoLexico.fueExitoso() && DETENER_EN_ERRORES_LEXICOS) {
-            System.out.printf("🌳 Análisis Sintáctico: ⏸️  NO EJECUTADO%n");
-            System.out.printf("   └─ Motivo: Errores léxicos detectados%n");
+        }
+
+        // Análisis Semántico
+        if (resultadoSemantico != null) {
+            String estadoSemantico = resultadoSemantico.fueExitoso() ? "✅ EXITOSO" : "❌ CON ERRORES";
+            System.out.printf("🧠 Análisis Semántico:  %s%n", estadoSemantico);
+            if (MOSTRAR_ESTADISTICAS) {
+                System.out.printf("   └─ Errores: %d | Warnings: %d | Tiempo: %d ms%n",
+                        resultadoSemantico.getNumeroErrores(),
+                        resultadoSemantico.getNumeroWarnings(),
+                        resultadoSemantico.getTiempoAnalisis());
+            }
+        } else if (EJECUTAR_ANALISIS_SEMANTICO) {
+            System.out.printf("🧠 Análisis Semántico:  ⏸️  NO EJECUTADO%n");
+            System.out.printf("   └─ Motivo: Errores en fases anteriores%n");
         }
 
         System.out.println();
@@ -196,32 +255,36 @@ public class App {
         if (exitoTotal) {
             System.out.println("🎉 ¡COMPILACIÓN EXITOSA!");
             System.out.println("✅ El programa pasó todas las fases de análisis");
-            System.out.println("🚀 Listo para las siguientes fases (semántico, generación de código)");
+
+            if (resultadoSemantico != null && resultadoSemantico.getNumeroWarnings() > 0) {
+                System.out.println("⚠️  Se encontraron " + resultadoSemantico.getNumeroWarnings() +
+                        " warnings (recomendaciones de mejora)");
+            }
+
         } else {
             System.out.println("💥 COMPILACIÓN FALLIDA");
 
+            // Diagnosticar dónde falló
             if (resultadoLexico != null && !resultadoLexico.fueExitoso()) {
-                System.out.println("❌ Se encontraron errores léxicos que impiden continuar");
-                System.out.println("🔧 Corrija los errores léxicos antes de proceder");
-            } else if (resultadoSintactico != null && !resultadoSintactico.fueExitoso()) {
-                System.out.println("❌ Se encontraron errores sintácticos");
-                System.out.println("🔧 Corrija los errores sintácticos antes de proceder");
+                System.out.println("❌ Errores léxicos detectados");
+            }
+            if (resultadoSintactico != null && !resultadoSintactico.fueExitoso()) {
+                System.out.println("❌ Errores sintácticos detectados");
+            }
+            if (resultadoSemantico != null && !resultadoSemantico.fueExitoso()) {
+                System.out.println("❌ Errores semánticos detectados");
             }
         }
 
-        // Recomendaciones
-        if (!exitoTotal) {
+        // Mostrar información de tabla de símbolos si está disponible
+        if (resultadoSemantico != null && MOSTRAR_TABLA_SIMBOLOS) {
+            var stats = resultadoSemantico.getTablaSimbolos().getEstadisticas();
             System.out.println();
-            System.out.println("💡 RECOMENDACIONES:");
-            if (resultadoLexico != null && !resultadoLexico.fueExitoso()) {
-                System.out.println("   1. Revise los identificadores que comienzan con números");
-                System.out.println("   2. Verifique la sintaxis de números decimales");
-                System.out.println("   3. Asegúrese de que los caracteres estén bien formados");
-            }
-            if (resultadoSintactico != null && !resultadoSintactico.fueExitoso()) {
-                System.out.println("   4. Revise la estructura del programa (llaves, paréntesis, puntos y coma)");
-                System.out.println("   5. Verifique la sintaxis de bucles for");
-            }
+            System.out.println("📊 TABLA DE SÍMBOLOS:");
+            System.out.printf("   Variables: %d | Funciones: %d | Ámbitos: %d%n",
+                    stats.get("totalVariables"),
+                    stats.get("totalFunciones"),
+                    stats.get("nivelMaximoAmbito") + 1);
         }
 
         System.out.println();
@@ -231,19 +294,34 @@ public class App {
      * Exporta los resultados a archivos
      */
     private static void exportarResultados(AnalizadorLexico.ResultadoAnalisis resultadoLexico,
-            AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico) {
+            AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico,
+            AnalizadorSemantico.ResultadoAnalisisSemantico resultadoSemantico) {
         try {
+            // Crear directorio de reportes si no existe
+            new java.io.File("reportes").mkdirs();
+
             String baseNombre = ARCHIVO_A_ANALIZAR.replace(".txt", "").replace("/", "_");
+            String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
 
             if (resultadoLexico != null) {
-                String archivoLexico = "reportes/" + baseNombre + "_lexico.txt";
+                String archivoLexico = String.format("reportes/%s_lexico_%s.txt", baseNombre, timestamp);
                 exportarReporteLexico(ARCHIVO_A_ANALIZAR, resultadoLexico, archivoLexico);
             }
 
             if (resultadoSintactico != null) {
-                String archivoReporte = "reportes/" + baseNombre + "_sintactico.txt";
-                ReportadorSintactico.exportarReporte(ARCHIVO_A_ANALIZAR, resultadoSintactico, archivoReporte);
+                String archivoSintactico = String.format("reportes/%s_sintactico_%s.txt", baseNombre, timestamp);
+                ReportadorSintactico.exportarReporte(ARCHIVO_A_ANALIZAR, resultadoSintactico, archivoSintactico);
             }
+
+            if (resultadoSemantico != null) {
+                String archivoSemantico = String.format("reportes/%s_semantico_%s.txt", baseNombre, timestamp);
+                ReportadorSemantico.exportarReporte(ARCHIVO_A_ANALIZAR, resultadoSemantico, archivoSemantico);
+            }
+
+            // Exportar reporte consolidado
+            String archivoConsolidado = String.format("reportes/%s_completo_%s.txt", baseNombre, timestamp);
+            exportarReporteConsolidado(ARCHIVO_A_ANALIZAR, resultadoLexico, resultadoSintactico,
+                    resultadoSemantico, archivoConsolidado);
 
         } catch (Exception e) {
             System.err.println("⚠️  Error al exportar resultados: " + e.getMessage());
@@ -299,6 +377,166 @@ public class App {
     }
 
     /**
+     * Exporta un reporte consolidado con todas las fases
+     */
+    private static void exportarReporteConsolidado(String nombreArchivo,
+            AnalizadorLexico.ResultadoAnalisis resultadoLexico,
+            AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico,
+            AnalizadorSemantico.ResultadoAnalisisSemantico resultadoSemantico,
+            String rutaExportacion) {
+
+        try (java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.FileWriter(rutaExportacion))) {
+            writer.println("╔══════════════════════════════════════════════════════════════╗");
+            writer.println("║                  REPORTE CONSOLIDADO                        ║");
+            writer.println("║              COMPILADOR C++ COMPLETO - TPTC                 ║");
+            writer.println("╚══════════════════════════════════════════════════════════════╝");
+            writer.println();
+            writer.println("Archivo analizado: " + nombreArchivo);
+            writer.println("Fecha y hora: " + new java.util.Date());
+            writer.println("Versión del compilador: TPTC v2.0");
+            writer.println("=".repeat(70));
+            writer.println();
+
+            // Resumen ejecutivo
+            writer.println("RESUMEN EJECUTIVO:");
+            writer.println("-".repeat(30));
+
+            boolean exitoTotal = true;
+            if (resultadoLexico != null) {
+                exitoTotal &= resultadoLexico.fueExitoso();
+                writer.println("Análisis Léxico: " + (resultadoLexico.fueExitoso() ? "✓ EXITOSO" : "✗ FALLIDO"));
+            }
+
+            if (resultadoSintactico != null) {
+                exitoTotal &= resultadoSintactico.fueExitoso();
+                writer.println(
+                        "Análisis Sintáctico: " + (resultadoSintactico.fueExitoso() ? "✓ EXITOSO" : "✗ FALLIDO"));
+            }
+
+            if (resultadoSemantico != null) {
+                exitoTotal &= resultadoSemantico.fueExitoso();
+                writer.println("Análisis Semántico: " + (resultadoSemantico.fueExitoso() ? "✓ EXITOSO" : "✗ FALLIDO"));
+            }
+
+            writer.println();
+            writer.println("ESTADO GENERAL: " + (exitoTotal ? "✓ COMPILACIÓN EXITOSA" : "✗ COMPILACIÓN FALLIDA"));
+            writer.println();
+
+            // Detalles por fase
+            if (resultadoLexico != null) {
+                writer.println("=".repeat(70));
+                writer.println("FASE 1: ANÁLISIS LÉXICO");
+                writer.println("=".repeat(70));
+                writer.printf("Tokens totales: %d%n", resultadoLexico.getTotalTokens());
+                writer.printf("Tokens válidos: %d%n", resultadoLexico.getTokensValidos());
+                writer.printf("Errores léxicos: %d%n", resultadoLexico.getTokensConError());
+                writer.printf("Porcentaje de éxito: %.1f%%%n", resultadoLexico.getPorcentajeExito());
+                writer.println();
+            }
+
+            if (resultadoSintactico != null) {
+                writer.println("=".repeat(70));
+                writer.println("FASE 2: ANÁLISIS SINTÁCTICO");
+                writer.println("=".repeat(70));
+                writer.printf("Nodos en AST: %d%n", resultadoSintactico.getNumeroNodos());
+                writer.printf("Profundidad máxima: %d%n", resultadoSintactico.getProfundidadMaxima());
+                writer.printf("Errores sintácticos: %d%n", resultadoSintactico.getErrores().size());
+                writer.printf("Tiempo de análisis: %d ms%n", resultadoSintactico.getTiempoAnalisis());
+                writer.println();
+            }
+
+            if (resultadoSemantico != null) {
+                writer.println("=".repeat(70));
+                writer.println("FASE 3: ANÁLISIS SEMÁNTICO");
+                writer.println("=".repeat(70));
+                writer.printf("Errores críticos: %d%n", resultadoSemantico.getNumeroErrores());
+                writer.printf("Warnings: %d%n", resultadoSemantico.getNumeroWarnings());
+                writer.printf("Tiempo de análisis: %d ms%n", resultadoSemantico.getTiempoAnalisis());
+
+                var stats = resultadoSemantico.getTablaSimbolos().getEstadisticas();
+                writer.printf("Variables declaradas: %d%n", stats.get("totalVariables"));
+                writer.printf("Funciones declaradas: %d%n", stats.get("totalFunciones"));
+                writer.printf("Máximo nivel de ámbito: %d%n", stats.get("nivelMaximoAmbito"));
+                writer.println();
+
+                // Tabla de símbolos resumida
+                writer.println("TABLA DE SÍMBOLOS (RESUMEN):");
+                writer.println("-".repeat(40));
+
+                // Funciones
+                var funciones = resultadoSemantico.getTablaSimbolos().getTodasLasFunciones();
+                if (!funciones.isEmpty()) {
+                    writer.println("Funciones:");
+                    for (var funcion : funciones) {
+                        writer.printf("  - %s (línea %d)%n", funcion.getSignatura(), funcion.getLinea());
+                    }
+                    writer.println();
+                }
+
+                // Variables (solo las más relevantes)
+                var variables = resultadoSemantico.getTablaSimbolos().getTodasLasVariables();
+                if (!variables.isEmpty()) {
+                    writer.println("Variables:");
+                    for (var variable : variables) {
+                        if (!variable.esParametro()) { // Solo variables, no parámetros
+                            String estado = variable.isUtilizado() ? "usada" : "no usada";
+                            writer.printf("  - %s %s (línea %d) - %s%n",
+                                    variable.getTipoDato(), variable.getNombre(),
+                                    variable.getLinea(), estado);
+                        }
+                    }
+                    writer.println();
+                }
+            }
+
+            // Errores y warnings consolidados
+            boolean hayProblemas = false;
+
+            if (resultadoSemantico != null && !resultadoSemantico.getErrores().isEmpty()) {
+                writer.println("=".repeat(70));
+                writer.println("ERRORES CRÍTICOS ENCONTRADOS:");
+                writer.println("=".repeat(70));
+                for (var error : resultadoSemantico.getErrores()) {
+                    writer.println("• " + error.toString());
+                    writer.println("  Sugerencia: " + error.getSugerencia());
+                    writer.println();
+                }
+                hayProblemas = true;
+            }
+
+            if (resultadoSemantico != null && !resultadoSemantico.getWarnings().isEmpty()) {
+                writer.println("=".repeat(70));
+                writer.println("WARNINGS (RECOMENDACIONES):");
+                writer.println("=".repeat(70));
+                for (var warning : resultadoSemantico.getWarnings()) {
+                    writer.println("• " + warning.toString());
+                    writer.println("  Sugerencia: " + warning.getSugerencia());
+                    writer.println();
+                }
+                hayProblemas = true;
+            }
+
+            if (!hayProblemas && exitoTotal) {
+                writer.println("=".repeat(70));
+                writer.println("¡FELICIDADES!");
+                writer.println("El código no presenta errores críticos ni warnings.");
+                writer.println("El programa está listo para las siguientes fases de compilación.");
+                writer.println("=".repeat(70));
+            }
+
+            writer.println();
+            writer.println("=".repeat(70));
+            writer.println("FIN DEL REPORTE");
+            writer.println("=".repeat(70));
+
+            System.out.println("✅ Reporte consolidado exportado a: " + rutaExportacion);
+
+        } catch (java.io.IOException e) {
+            System.err.println("❌ Error al exportar reporte consolidado: " + e.getMessage());
+        }
+    }
+
+    /**
      * Maneja errores generales
      */
     private static void manejarErrorGeneral(Exception e) {
@@ -313,6 +551,7 @@ public class App {
         System.err.println("   • Archivos ANTLR no compilados correctamente");
         System.err.println("   • Dependencias faltantes");
         System.err.println("   • Archivo de entrada corrupto o no encontrado");
+        System.err.println("   • Error en el análisis semántico");
 
         if (e.getMessage() != null && e.getMessage().contains("ClassNotFoundException")) {
             System.err.println("   • Ejecuta: javac -cp \".;antlr-4.13.1-complete.jar\" tptc\\*.java");
@@ -322,6 +561,12 @@ public class App {
             System.err.println("   • Verifica que el archivo '" + ARCHIVO_A_ANALIZAR + "' existe");
             System.err.println("   • Crea el directorio 'input/' si no existe");
         }
+
+        System.err.println();
+        System.err.println("📚 Para más información sobre el compilador TPTC:");
+        System.err.println("   • Verifica que todas las clases estén compiladas");
+        System.err.println("   • Asegúrate de que la gramática ANTLR esté actualizada");
+        System.err.println("   • Revisa que el archivo de entrada tenga sintaxis C++ válida");
 
         System.err.println();
         e.printStackTrace();

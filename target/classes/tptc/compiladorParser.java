@@ -147,26 +147,28 @@ public class compiladorParser extends Parser {
 	public final ProgramaContext programa() throws RecognitionException {
 		ProgramaContext _localctx = new ProgramaContext(_ctx, getState());
 		enterRule(_localctx, 0, RULE_programa);
-		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(32);
-			definicion_funcion_main();
-			setState(36);
+			setState(35);
 			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 520093696L) != 0)) {
-				{
-				{
-				setState(33);
-				definicion_funcion();
+			_alt = getInterpreter().adaptivePredict(_input,0,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(32);
+					definicion_funcion();
+					}
+					} 
 				}
-				}
-				setState(38);
+				setState(37);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
+				_alt = getInterpreter().adaptivePredict(_input,0,_ctx);
 			}
+			setState(38);
+			definicion_funcion_main();
 			setState(39);
 			match(EOF);
 			}
@@ -1514,7 +1516,7 @@ public class compiladorParser extends Parser {
 		"\u0005\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007\u0002"+
 		"\b\u0007\b\u0002\t\u0007\t\u0002\n\u0007\n\u0002\u000b\u0007\u000b\u0002"+
 		"\f\u0007\f\u0002\r\u0007\r\u0002\u000e\u0007\u000e\u0002\u000f\u0007\u000f"+
-		"\u0001\u0000\u0001\u0000\u0005\u0000#\b\u0000\n\u0000\f\u0000&\t\u0000"+
+		"\u0001\u0000\u0005\u0000\"\b\u0000\n\u0000\f\u0000%\t\u0000\u0001\u0000"+
 		"\u0001\u0000\u0001\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001"+
 		"\u0001\u0001\u0001\u0001\u0001\u0002\u0001\u0002\u0001\u0002\u0001\u0002"+
 		"\u0003\u00024\b\u0002\u0001\u0002\u0001\u0002\u0001\u0002\u0001\u0003"+
@@ -1543,16 +1545,16 @@ public class compiladorParser extends Parser {
 		"\n\f\u000e\u0010\u0012\u0014\u0016\u0018\u001a\u001c\u001e\u0000\u0006"+
 		"\u0001\u0000\u0018\u001c\u0002\u0000\u0007\u0007\u0017\u0017\u0001\u0000"+
 		"\u0011\u0013\u0001\u0000\t\u000e\u0001\u0000\u0012\u0013\u0001\u0000\u0014"+
-		"\u0016\u00d8\u0000 \u0001\u0000\u0000\u0000\u0002)\u0001\u0000\u0000\u0000"+
+		"\u0016\u00d8\u0000#\u0001\u0000\u0000\u0000\u0002)\u0001\u0000\u0000\u0000"+
 		"\u0004/\u0001\u0000\u0000\u0000\u00068\u0001\u0000\u0000\u0000\b@\u0001"+
 		"\u0000\u0000\u0000\nC\u0001\u0000\u0000\u0000\fE\u0001\u0000\u0000\u0000"+
 		"\u000eb\u0001\u0000\u0000\u0000\u0010d\u0001\u0000\u0000\u0000\u0012j"+
 		"\u0001\u0000\u0000\u0000\u0014s\u0001\u0000\u0000\u0000\u0016y\u0001\u0000"+
 		"\u0000\u0000\u0018\u008b\u0001\u0000\u0000\u0000\u001a\u008f\u0001\u0000"+
 		"\u0000\u0000\u001c\u00a6\u0001\u0000\u0000\u0000\u001e\u00bc\u0001\u0000"+
-		"\u0000\u0000 $\u0003\u0002\u0001\u0000!#\u0003\u0004\u0002\u0000\"!\u0001"+
-		"\u0000\u0000\u0000#&\u0001\u0000\u0000\u0000$\"\u0001\u0000\u0000\u0000"+
-		"$%\u0001\u0000\u0000\u0000%\'\u0001\u0000\u0000\u0000&$\u0001\u0000\u0000"+
+		"\u0000\u0000 \"\u0003\u0004\u0002\u0000! \u0001\u0000\u0000\u0000\"%\u0001"+
+		"\u0000\u0000\u0000#!\u0001\u0000\u0000\u0000#$\u0001\u0000\u0000\u0000"+
+		"$&\u0001\u0000\u0000\u0000%#\u0001\u0000\u0000\u0000&\'\u0003\u0002\u0001"+
 		"\u0000\'(\u0005\u0000\u0000\u0001(\u0001\u0001\u0000\u0000\u0000)*\u0005"+
 		"\u0018\u0000\u0000*+\u0005\u0001\u0000\u0000+,\u0005\u0002\u0000\u0000"+
 		",-\u0005\u0003\u0000\u0000-.\u0003\f\u0006\u0000.\u0003\u0001\u0000\u0000"+
@@ -1633,7 +1635,7 @@ public class compiladorParser extends Parser {
 		"\u0003\u001c\u000e\u0000\u00bf\u00bd\u0001\u0000\u0000\u0000\u00c0\u00c3"+
 		"\u0001\u0000\u0000\u0000\u00c1\u00bf\u0001\u0000\u0000\u0000\u00c1\u00c2"+
 		"\u0001\u0000\u0000\u0000\u00c2\u001f\u0001\u0000\u0000\u0000\u00c3\u00c1"+
-		"\u0001\u0000\u0000\u0000\u0010$3=Ibhq}\u0081\u0086\u008d\u0099\u00a6\u00b7"+
+		"\u0001\u0000\u0000\u0000\u0010#3=Ibhq}\u0081\u0086\u008d\u0099\u00a6\u00b7"+
 		"\u00b9\u00c1";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());

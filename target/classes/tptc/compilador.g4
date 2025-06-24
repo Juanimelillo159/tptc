@@ -83,7 +83,7 @@ COMENTARIO_BLOQUE: '/*' .*? '*/' -> skip;
 WS: [ \t\n\r]+ -> skip;
 
 // ============ REGLAS DEL PARSER (sin cambios) ============
-programa: definicion_funcion_main definicion_funcion* EOF;
+programa: definicion_funcion* definicion_funcion_main EOF;
 
 definicion_funcion_main: INT 'main' PA PC bloque;
 

@@ -122,7 +122,9 @@ para:
 
 retorno: RETURN expresion?;
 
-asignacion: IDENTIFICADOR (IGU | SUMA_ASIG) expresion;
+asignacion: 
+    IDENTIFICADOR IGU expresion # AsignacionSimple
+    | IDENTIFICADOR SUMA_ASIG expresion # AsignacionSuma;
 
 expresion:
 	expresion OR expresion
@@ -141,3 +143,4 @@ expresion:
 	| PA expresion PC;
 
 argumentos: expresion (COM expresion)*;
+

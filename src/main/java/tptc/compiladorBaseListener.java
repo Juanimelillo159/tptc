@@ -1,4 +1,4 @@
-// Generated from c:/Users/juani/Desktop/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from d:/Desktop/informatica 5 año/Tecnicas de compilación/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 
@@ -175,13 +175,25 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAsignacion(compiladorParser.AsignacionContext ctx) { }
+	@Override public void enterAsignacionSimple(compiladorParser.AsignacionSimpleContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAsignacion(compiladorParser.AsignacionContext ctx) { }
+	@Override public void exitAsignacionSimple(compiladorParser.AsignacionSimpleContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAsignacionSuma(compiladorParser.AsignacionSumaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAsignacionSuma(compiladorParser.AsignacionSumaContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

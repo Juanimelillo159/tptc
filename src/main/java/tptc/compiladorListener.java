@@ -1,4 +1,4 @@
-// Generated from c:/Users/juani/Desktop/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from d:/Desktop/informatica 5 año/Tecnicas de compilación/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 
@@ -140,15 +140,29 @@ public interface compiladorListener extends ParseTreeListener {
 	 */
 	void exitRetorno(compiladorParser.RetornoContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link compiladorParser#asignacion}.
+	 * Enter a parse tree produced by the {@code AsignacionSimple}
+	 * labeled alternative in {@link compiladorParser#asignacion}.
 	 * @param ctx the parse tree
 	 */
-	void enterAsignacion(compiladorParser.AsignacionContext ctx);
+	void enterAsignacionSimple(compiladorParser.AsignacionSimpleContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link compiladorParser#asignacion}.
+	 * Exit a parse tree produced by the {@code AsignacionSimple}
+	 * labeled alternative in {@link compiladorParser#asignacion}.
 	 * @param ctx the parse tree
 	 */
-	void exitAsignacion(compiladorParser.AsignacionContext ctx);
+	void exitAsignacionSimple(compiladorParser.AsignacionSimpleContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AsignacionSuma}
+	 * labeled alternative in {@link compiladorParser#asignacion}.
+	 * @param ctx the parse tree
+	 */
+	void enterAsignacionSuma(compiladorParser.AsignacionSumaContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AsignacionSuma}
+	 * labeled alternative in {@link compiladorParser#asignacion}.
+	 * @param ctx the parse tree
+	 */
+	void exitAsignacionSuma(compiladorParser.AsignacionSumaContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link compiladorParser#expresion}.
 	 * @param ctx the parse tree

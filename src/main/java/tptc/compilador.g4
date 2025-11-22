@@ -82,7 +82,7 @@ COMENTARIO_LINEA: '//' ~[\r\n]* -> skip;
 COMENTARIO_BLOQUE: '/*' .*? '*/' -> skip;
 WS: [ \t\n\r]+ -> skip;
 
-// ============ REGLAS DEL PARSER (sin cambios) ============
+// ============ REGLAS DEL PARSER (CORREGIDAS) ============
 programa: definicion_funcion* definicion_funcion_main EOF;
 
 definicion_funcion_main: INT 'main' PA PC bloque;
@@ -115,14 +115,18 @@ si: IF PA expresion PC instruccion (ELSE instruccion)?;
 mientras: WHILE PA expresion PC instruccion;
 
 para:
-	FOR PA (declaracion_variable | asignacion)? PyC expresion? PyC (
-		asignacion
+	FOR PA (declaracion_variable | asignacion_simple)? PyC expresion? PyC (
+		asignacion_simple
 		| expresion
 	)? PC instruccion;
 
 retorno: RETURN expresion?;
 
-asignacion: IDENTIFICADOR (IGU | SUMA_ASIG) expresion;
+// CORRECCIÓN: Definir una regla base para asignacion
+asignacion: asignacion_simple | asignacion_suma;
+
+asignacion_simple: IDENTIFICADOR IGU expresion;
+asignacion_suma: IDENTIFICADOR SUMA_ASIG expresion;
 
 expresion:
 	expresion OR expresion

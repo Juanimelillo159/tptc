@@ -18,6 +18,7 @@ public class ReportadorSintactico {
 
         if (resultado.fueExitoso()) {
             mostrarEstadisticasDetalladas(resultado);
+            mostrarCodigoIntermedio(resultado.getCodigoIntermedio());
         } else {
             mostrarErroresSintacticos(resultado.getErrores());
         }
@@ -147,7 +148,7 @@ public class ReportadorSintactico {
         // Agrupar errores por línea para mejor presentación
         Map<Integer, List<AnalizadorSintactico.ErrorSintactico>> erroresPorLinea = new HashMap<>();
         for (AnalizadorSintactico.ErrorSintactico error : errores) {
-            erroresPorLinea.computeIfAbsent(error.getLinea(), _ -> new ArrayList<>()).add(error);
+            erroresPorLinea.computeIfAbsent(error.getLinea(), k -> new ArrayList<>()).add(error);
         }
 
         // Mostrar errores ordenados por línea
@@ -184,6 +185,15 @@ public class ReportadorSintactico {
 
         // Mostrar resumen de tipos de errores más comunes
         mostrarResumenTiposErrores(errores);
+    }
+
+    private static void mostrarCodigoIntermedio(List<String> codigo) {
+        if (codigo == null || codigo.isEmpty()) return;
+    
+        System.out.println("\n🔄 CÓDIGO INTERMEDIO GENERADO (3AC):");
+        System.out.println("═".repeat(60));
+        codigo.forEach(linea -> System.out.println("  " + linea));
+        System.out.println("═".repeat(60));
     }
 
     private static void mostrarEstadisticasDetalladas(AnalizadorSintactico.ResultadoAnalisisSintactico resultado) {

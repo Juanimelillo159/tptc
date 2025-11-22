@@ -1,4 +1,4 @@
-// Generated from c:/Users/juani/Desktop/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from d:/Desktop/informatica 5 año/Tecnicas de compilación/TC Final/tptc-Codigo-Intermedio/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 
@@ -96,6 +96,18 @@ public interface compiladorVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAsignacion(compiladorParser.AsignacionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link compiladorParser#asignacion_simple}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAsignacion_simple(compiladorParser.Asignacion_simpleContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link compiladorParser#asignacion_suma}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAsignacion_suma(compiladorParser.Asignacion_sumaContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link compiladorParser#expresion}.
 	 * @param ctx the parse tree

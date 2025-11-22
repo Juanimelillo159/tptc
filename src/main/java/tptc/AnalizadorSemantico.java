@@ -1,5 +1,6 @@
 package tptc;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.*;
 import java.util.*;
 
@@ -281,23 +282,35 @@ public class AnalizadorSemantico extends compiladorBaseListener {
     }
 
     @Override
-    public void enterAsignacion(compiladorParser.AsignacionContext ctx) {
-        String nombre = ctx.IDENTIFICADOR().getText();
-        Simbolo simbolo = tablaSimbolos.buscar(nombre);
-
-        if (simbolo == null) {
-            agregarError(ErrorSemantico.TipoError.VARIABLE_NO_DECLARADA,
-                    "La variable '" + nombre + "' no está declarada",
-                    ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
-        } else if (simbolo instanceof SimboloVariable) {
-            SimboloVariable variable = (SimboloVariable) simbolo;
-            variable.setInicializado(true);
-            variable.setUtilizado(true);
-
-            String tipoExpresion = analizarTipoExpresion(ctx.expresion());
-            verificarCompatibilidadTipos(variable.getTipoDato(), tipoExpresion, ctx.expresion());
-        }
+    public void enterAsignacion_simple(compiladorParser.Asignacion_simpleContext ctx) {
+        procesarAsignacion(ctx.IDENTIFICADOR(), ctx.expresion(), ctx);
     }
+
+    @Override
+    public void enterAsignacion_suma(compiladorParser.Asignacion_sumaContext ctx) {
+        procesarAsignacion(ctx.IDENTIFICADOR(), ctx.expresion(), ctx);
+    }
+
+    // Método auxiliar común para ambos tipos de asignación
+    private void procesarAsignacion(TerminalNode identificador, 
+                              compiladorParser.ExpresionContext exprCtx,
+                              ParserRuleContext ctx) {
+    String nombre = identificador.getText();
+    Simbolo simbolo = tablaSimbolos.buscar(nombre);
+
+    if (simbolo == null) {
+        agregarError(ErrorSemantico.TipoError.VARIABLE_NO_DECLARADA,
+                "La variable '" + nombre + "' no está declarada",
+                ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
+    } else if (simbolo instanceof SimboloVariable) {
+        SimboloVariable variable = (SimboloVariable) simbolo;
+        variable.setInicializado(true);
+        variable.setUtilizado(true);
+
+        String tipoExpresion = analizarTipoExpresion(exprCtx);
+        verificarCompatibilidadTipos(variable.getTipoDato(), tipoExpresion, exprCtx);
+    }
+}
 
     // === MANEJO DE EXPRESIONES ===
 

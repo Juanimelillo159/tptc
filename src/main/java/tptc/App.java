@@ -10,7 +10,7 @@ import java.io.*;
 public class App {
 
     // ⭐ CONFIGURACIÓN PRINCIPAL ⭐
-    private static final String ARCHIVO_A_ANALIZAR = "input/programa.txt";
+    private static final String ARCHIVO_A_ANALIZAR = "input/programa2.txt";
 
     // Configuración de análisis
     private static final boolean EJECUTAR_ANALISIS_LEXICO = true;

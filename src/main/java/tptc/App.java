@@ -1,6 +1,7 @@
 package tptc;
 
 import java.io.*;
+import java.util.List;
 
 
 /**
@@ -9,7 +10,7 @@ import java.io.*;
  */
 public class App {
 
-    // ⭐ CONFIGURACIÓN PRINCIPAL ⭐
+    // CONFIGURACIÓN PRINCIPAL
     private static final String ARCHIVO_A_ANALIZAR = "input/programa2.txt";
 
     // Configuración de análisis
@@ -24,10 +25,14 @@ public class App {
     private static final boolean MOSTRAR_ESTADISTICAS = true;
     private static final boolean MOSTRAR_TABLA_SIMBOLOS = true;
 
-    // ⭐ NUEVA CONFIGURACIÓN SEMÁNTICA ⭐
+    // CONFIGURACIÓN SEMÁNTICA
     private static final boolean DETENER_EN_ERRORES_LEXICOS = true;
     private static final boolean DETENER_EN_ERRORES_SINTACTICOS = true;
     private static final boolean MOSTRAR_WARNINGS = true;
+
+    // Configuración Codigo Intermedio
+    private static final boolean GENERAR_CODIGO_INTERMEDIO = true;
+    private static final boolean MOSTRAR_CODIGO_INTERMEDIO = true;
 
     public static void main(String[] args) {
         System.out.println("╔══════════════════════════════════════════════════════════════╗");
@@ -138,13 +143,44 @@ public class App {
                                 + " warnings (no críticos).");
                     }
                 }
-
+                
 
             } else if (EJECUTAR_ANALISIS_SEMANTICO) {
                 System.out.println("⏸️  ANÁLISIS SEMÁNTICO OMITIDO");
                 System.out.println("   Motivo: Errores en fases anteriores impiden el análisis semántico");
                 System.out.println();
             }
+
+            // === FASE 4: GENERACIÓN DE CÓDIGO INTERMEDIO ===
+            if (GENERAR_CODIGO_INTERMEDIO && resultadoSemantico != null && resultadoSemantico.fueExitoso()) {
+                System.out.println("🔄 GENERANDO CÓDIGO INTERMEDIO...");
+                System.out.println("═".repeat(60));
+    
+            try {
+                GeneradorCodigoIntermedio generador = new GeneradorCodigoIntermedio();
+                generador.visit(resultadoSintactico.getArbolSintactico());
+                List<String> codigoIntermedio = generador.getCodigoIntermedio();
+        
+                if (MOSTRAR_CODIGO_INTERMEDIO && !codigoIntermedio.isEmpty()) {
+                    generador.mostrarCodigo();
+            
+                // Mostrar estadísticas
+                    System.out.println("\n📊 RESUMEN CÓDIGO INTERMEDIO:");
+                    System.out.printf("   Líneas generadas: %d\n", codigoIntermedio.size());
+                    System.out.printf("   Temporales usadas: t0 - t%d\n", generador.tempCount - 1);
+                    System.out.printf("   Labels generados: L0 - L%d\n", generador.labelCount - 1);
+                } else if (codigoIntermedio.isEmpty()) {
+                    System.out.println("⚠️  No se generó código intermedio (lista vacía)");
+            }
+        
+            } catch (Exception e) {
+                System.out.println("❌ Error al generar código intermedio: " + e.getMessage());
+            e.printStackTrace();
+            }
+        } else if (GENERAR_CODIGO_INTERMEDIO) {
+         System.out.println("⏸️  GENERACIÓN DE CÓDIGO INTERMEDIO OMITIDA");
+         System.out.println("   Motivo: Errores en fases anteriores impiden la generación");
+        }
 
             // === RESUMEN FINAL ===
             mostrarResumenFinal(resultadoLexico, resultadoSintactico, resultadoSemantico, exitoTotal);

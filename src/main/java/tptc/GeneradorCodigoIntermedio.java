@@ -5,13 +5,22 @@ import java.util.*;
 
 public class GeneradorCodigoIntermedio extends compiladorBaseVisitor<String> {
     private List<String> codigo = new ArrayList<>();
-    private int tempCount = 0;
-    private int labelCount = 0;
+    public int tempCount = 0;
+    public int labelCount = 0;
     private Stack<String> labelsSalida = new Stack<>();
     private Stack<String> labelsEntrada = new Stack<>();
 
     public List<String> getCodigoIntermedio() {
         return codigo;
+    }
+
+    public void mostrarCodigo() {
+        System.out.println("╔══════════════════════════════════════════════════════════════╗");
+        System.out.println("║                CÓDIGO INTERMEDIO GENERADO                  ║");
+        System.out.println("╚══════════════════════════════════════════════════════════════╝");
+        for (int i = 0; i < codigo.size(); i++) {
+            System.out.printf("%3d │ %s%n", i + 1, codigo.get(i));
+        }
     }
 
     private String nuevaTemp() {
@@ -20,37 +29,6 @@ public class GeneradorCodigoIntermedio extends compiladorBaseVisitor<String> {
 
     private String nuevaLabel() {
         return "L" + (labelCount++);
-    }
-
-    // Método auxiliar para manejar expresiones de condición
-    private String visitExpresionCondicional(List<compiladorParser.ExpresionContext> expresiones) {
-    if (expresiones == null || expresiones.isEmpty()) {
-        throw new RuntimeException("Expresión condicional vacía");
-    }
-    
-    // Si solo hay una expresión
-    if (expresiones.size() == 1) {
-        return visit(expresiones.get(0));
-    }
-    
-    // Si hay múltiples expresiones, las combinamos con AND lógico
-    String resultado = visit(expresiones.get(0));
-    for (int i = 1; i < expresiones.size(); i++) {
-        String temp = nuevaTemp();
-        String right = visit(expresiones.get(i));
-        codigo.add(temp + " = " + resultado + " && " + right);
-        resultado = temp;
-    }
-    return resultado;
-}
-
-    private String procesarCondicion(ParseTree condicionNode) { 
-        if (condicionNode instanceof compiladorParser.ExpresionContext) {
-            return visit((compiladorParser.ExpresionContext) condicionNode);
-        } else if (condicionNode instanceof TerminalNode) {
-            return condicionNode.getText();
-        }
-        throw new RuntimeException("Tipo de condición no soportada: " + condicionNode.getClass().getSimpleName());
     }
 
     @Override
@@ -62,11 +40,47 @@ public class GeneradorCodigoIntermedio extends compiladorBaseVisitor<String> {
     }
 
     @Override
+    public String visitDefinicion_funcion_main(compiladorParser.Definicion_funcion_mainContext ctx) {
+        codigo.add("FUNCION main:");
+        visit(ctx.bloque());
+        codigo.add("FIN_FUNCION main");
+        return null;
+    }
+
+    @Override
     public String visitDefinicion_funcion(compiladorParser.Definicion_funcionContext ctx) {
         String nombreFuncion = ctx.IDENTIFICADOR().getText();
         codigo.add("FUNCION " + nombreFuncion + ":");
+        
+        if (ctx.parametros() != null) {
+            visit(ctx.parametros());
+        }
+        
         visit(ctx.bloque());
         codigo.add("FIN_FUNCION " + nombreFuncion);
+        return null;
+    }
+
+    @Override
+    public String visitParametro(compiladorParser.ParametroContext ctx) {
+        String nombreParam = ctx.IDENTIFICADOR().getText();
+        String tipo = ctx.tipo().getText();
+        codigo.add("PARAM " + tipo + " " + nombreParam);
+        return null;
+    }
+
+    @Override
+    public String visitDeclaracion_variable(compiladorParser.Declaracion_variableContext ctx) {
+        String nombreVariable = ctx.IDENTIFICADOR().getText();
+        String tipo = ctx.tipo().getText();
+        
+        codigo.add("DECLARAR " + tipo + " " + nombreVariable);
+        
+        if (ctx.expresion() != null) {
+            String valor = visit(ctx.expresion());
+            codigo.add(nombreVariable + " = " + valor);
+        }
+        
         return null;
     }
 
@@ -86,12 +100,11 @@ public class GeneradorCodigoIntermedio extends compiladorBaseVisitor<String> {
         codigo.add(temp + " = " + id + " + " + expr);
         codigo.add(id + " = " + temp);
         return null;
-}
+    }
 
     @Override
     public String visitExpresion(compiladorParser.ExpresionContext ctx) {
         if (ctx.getChildCount() == 1) {
-            // Manejo de expresiones simples (variables, literales)
             ParseTree hijo = ctx.getChild(0);
             if (hijo instanceof TerminalNode) {
                 return hijo.getText();
@@ -99,22 +112,81 @@ public class GeneradorCodigoIntermedio extends compiladorBaseVisitor<String> {
             return visit(hijo);
         }
 
-        // Manejo de operaciones binarias
         if (ctx.getChildCount() == 3) {
             String left = visit(ctx.getChild(0));
-            String right = visit(ctx.getChild(2));
             String op = ctx.getChild(1).getText();
-
+            String right = visit(ctx.getChild(2));
+            
             String temp = nuevaTemp();
             codigo.add(temp + " = " + left + " " + op + " " + right);
             return temp;
         }
-        
-        // Manejo de paréntesis
+
         if (ctx.PA() != null && ctx.PC() != null) {
             return visit(ctx.expresion(0));
         }
 
+        if (ctx.IDENTIFICADOR() != null && ctx.argumentos() != null) {
+            return procesarLlamadaFuncion(ctx);
+        }
+
+        if ((ctx.SUMA() != null || ctx.RESTA() != null || ctx.NOT() != null) && 
+            ctx.expresion() != null && ctx.expresion().size() == 1) {
+            String expr = visit(ctx.expresion(0));
+            String op = ctx.getChild(0).getText();
+            String temp = nuevaTemp();
+            
+            if (op.equals("!")) {
+                codigo.add(temp + " = " + op + " " + expr);
+            } else {
+                codigo.add(temp + " = " + op + expr);
+            }
+            return temp;
+        }
+
+        return visitChildren(ctx);
+    }
+
+    private String procesarLlamadaFuncion(compiladorParser.ExpresionContext ctx) {
+        String nombreFuncion = ctx.IDENTIFICADOR().getText();
+        StringBuilder llamada = new StringBuilder("CALL " + nombreFuncion);
+        
+        if (ctx.argumentos() != null && ctx.argumentos().expresion() != null) {
+            for (compiladorParser.ExpresionContext arg : ctx.argumentos().expresion()) {
+                String argValor = visit(arg);
+                llamada.append(" ").append(argValor);
+            }
+        }
+        
+        if (!nombreFuncion.equals("main")) {
+            String temp = nuevaTemp();
+            codigo.add(temp + " = " + llamada.toString());
+            return temp;
+        } else {
+            codigo.add(llamada.toString());
+            return "";
+        }
+    }
+
+    @Override
+    public String visitInstruccion(compiladorParser.InstruccionContext ctx) {
+        // Manejar break
+        if (ctx.BREAK() != null) {
+            if (!labelsSalida.isEmpty()) {
+                codigo.add("goto " + labelsSalida.peek());
+            }
+            return null;
+        }
+        
+        // Manejar continue
+        if (ctx.CONTINUE() != null) {
+            if (!labelsEntrada.isEmpty()) {
+                codigo.add("goto " + labelsEntrada.peek());
+            }
+            return null;
+        }
+        
+        // Para otros tipos de instrucciones, procesar normalmente
         return visitChildren(ctx);
     }
 
@@ -123,16 +195,15 @@ public class GeneradorCodigoIntermedio extends compiladorBaseVisitor<String> {
         String labelElse = nuevaLabel();
         String labelFin = nuevaLabel();
 
-        // Versión segura para cualquier tipo de gramática
-        String condicion = procesarCondicion(ctx.expresion());
+        String condicion = visit(ctx.expresion());
         codigo.add("ifFalse " + condicion + " goto " + labelElse);
 
-        visit(ctx.instruccion(0)); // Bloque if
+        visit(ctx.instruccion(0));
 
         if (ctx.ELSE() != null) {
             codigo.add("goto " + labelFin);
             codigo.add(labelElse + ":");
-        visit(ctx.instruccion(1)); // Bloque else
+            visit(ctx.instruccion(1));
             codigo.add(labelFin + ":");
         } else {
             codigo.add(labelElse + ":");
@@ -149,10 +220,10 @@ public class GeneradorCodigoIntermedio extends compiladorBaseVisitor<String> {
         labelsSalida.push(labelFin);
 
         codigo.add(labelInicio + ":");
-        String condicion = procesarCondicion(ctx.expresion());
+        String condicion = visit(ctx.expresion());
         codigo.add("ifFalse " + condicion + " goto " + labelFin);
 
-        visit(ctx.instruccion()); // Cuerpo del while
+        visit(ctx.instruccion());
 
         codigo.add("goto " + labelInicio);
         codigo.add(labelFin + ":");
@@ -167,31 +238,36 @@ public class GeneradorCodigoIntermedio extends compiladorBaseVisitor<String> {
         String labelInicio = nuevaLabel();
         String labelFin = nuevaLabel();
 
-        // Inicialización
+        labelsEntrada.push(labelInicio);
+        labelsSalida.push(labelFin);
+
         if (ctx.declaracion_variable() != null) {
             visit(ctx.declaracion_variable());
-        } else if (!ctx.asignacion_simple().isEmpty()) {
+        } else if (ctx.asignacion_simple() != null && !ctx.asignacion_simple().isEmpty()) {
             visit(ctx.asignacion_simple(0));
         }
 
         codigo.add(labelInicio + ":");
 
-        // Condición (manejo seguro de expresión nula)
-        if (ctx.expresion() != null) {
-            String condicion = visitExpresionCondicional(ctx.expresion());
+        if (ctx.expresion() != null && !ctx.expresion().isEmpty()) {
+            String condicion = visit(ctx.expresion(0));
             codigo.add("ifFalse " + condicion + " goto " + labelFin);
         }
 
-        // Cuerpo
         visit(ctx.instruccion());
 
-        // Incremento (manejo seguro de índices)
-        if (ctx.asignacion_simple().size() > (ctx.declaracion_variable() != null ? 1 : 0)) {
-            visit(ctx.asignacion_simple(ctx.declaracion_variable() != null ? 1 : 0));
+        if (ctx.asignacion_simple() != null && ctx.asignacion_simple().size() > 0) {
+            int index = ctx.declaracion_variable() != null ? 1 : 0;
+            if (ctx.asignacion_simple().size() > index) {
+                visit(ctx.asignacion_simple(index));
+            }
         }
 
         codigo.add("goto " + labelInicio);
         codigo.add(labelFin + ":");
+
+        labelsEntrada.pop();
+        labelsSalida.pop();
         return null;
     }
 
@@ -202,6 +278,16 @@ public class GeneradorCodigoIntermedio extends compiladorBaseVisitor<String> {
             codigo.add("return " + expr);
         } else {
             codigo.add("return");
+        }
+        return null;
+    }
+
+    @Override
+    public String visitBloque(compiladorParser.BloqueContext ctx) {
+        if (ctx.instruccion() != null) {
+            for (compiladorParser.InstruccionContext instr : ctx.instruccion()) {
+                visit(instr);
+            }
         }
         return null;
     }

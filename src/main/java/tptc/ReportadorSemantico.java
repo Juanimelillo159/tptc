@@ -31,19 +31,19 @@ public class ReportadorSemantico {
      */
     public static void mostrarSoloErrores(AnalizadorSemantico.ResultadoAnalisisSemantico resultado) {
         if (!resultado.fueExitoso()) {
-            System.out.println("❌ ERRORES SEMÁNTICOS CRÍTICOS:");
+            System.out.println(ANSI.error("❌ ERRORES SEMÁNTICOS CRÍTICOS:"));
             System.out.println("═".repeat(60));
             mostrarErroresCriticos(resultado.getErrores());
         }
 
         if (!resultado.getWarnings().isEmpty()) {
-            System.out.println("\n⚠️  WARNINGS (NO CRÍTICOS):");
+            System.out.println(ANSI.warning("\n⚠️  WARNINGS (NO CRÍTICOS):"));
             System.out.println("═".repeat(60));
             mostrarWarnings(resultado.getWarnings());
         }
 
         if (resultado.fueExitoso() && resultado.getWarnings().isEmpty()) {
-            System.out.println("✅ No se encontraron errores semánticos");
+            System.out.println(ANSI.success("✅ No se encontraron errores semánticos"));
         }
     }
 
@@ -55,13 +55,13 @@ public class ReportadorSemantico {
         System.out.println("─".repeat(40));
 
         if (resultado.fueExitoso()) {
-            System.out.println("🟢 Estado: EXITOSO");
+            System.out.println(ANSI.success("🟢 Estado: EXITOSO"));
         } else {
-            System.out.println("🔴 Estado: CON ERRORES");
-            System.out.println("❌ Errores críticos: " + resultado.getNumeroErrores());
+            System.out.println(ANSI.error("🔴 Estado: CON ERRORES"));
+            System.out.println(ANSI.error("❌ Errores críticos: " + resultado.getNumeroErrores()));
         }
 
-        System.out.println("⚠️  Warnings: " + resultado.getNumeroWarnings());
+        System.out.println(ANSI.warning("⚠️  Warnings: " + resultado.getNumeroWarnings()));
         System.out.println("⏱️  Tiempo: " + resultado.getTiempoAnalisis() + " ms");
 
         // Mostrar estadísticas básicas de la tabla de símbolos
@@ -85,11 +85,11 @@ public class ReportadorSemantico {
         System.out.println("═".repeat(50));
 
         if (resultado.fueExitoso()) {
-            System.out.println("🎉 ¡ANÁLISIS SEMÁNTICO EXITOSO!");
-            System.out.println("✅ El programa es semánticamente correcto");
+            System.out.println(ANSI.success("🎉 ¡ANÁLISIS SEMÁNTICO EXITOSO!"));
+            System.out.println(ANSI.success("✅ El programa es semánticamente correcto"));
         } else {
-            System.out.println("❌ ERRORES SEMÁNTICOS DETECTADOS");
-            System.out.println("🚫 El programa contiene errores que impiden la compilación");
+            System.out.println(ANSI.error("❌ ERRORES SEMÁNTICOS DETECTADOS"));
+            System.out.println(ANSI.error("🚫 El programa contiene errores que impiden la compilación"));
         }
 
         System.out.println();
@@ -102,7 +102,7 @@ public class ReportadorSemantico {
     }
 
     private static void mostrarErroresCriticos(List<ErrorSemantico> errores) {
-        System.out.println("🚨 ERRORES CRÍTICOS:");
+        System.out.println(ANSI.error("🚨 ERRORES CRÍTICOS:"));
         System.out.println("═".repeat(60));
 
         // Agrupar errores por línea
@@ -115,10 +115,10 @@ public class ReportadorSemantico {
             int linea = entry.getKey();
             List<ErrorSemantico> erroresLinea = entry.getValue();
 
-            System.out.printf("📍 LÍNEA %d:%n", linea);
+            System.out.printf(ANSI.error("📍 LÍNEA %d:%n"), linea);
             for (int i = 0; i < erroresLinea.size(); i++) {
                 ErrorSemantico error = erroresLinea.get(i);
-                System.out.printf("   %d. %s%n", i + 1, error.toString());
+                System.out.printf("   %d. %s%n", i + 1, ANSI.error(error.toString()));
                 System.out.printf("      💡 %s%n", error.getSugerencia());
                 if (i < erroresLinea.size() - 1) {
                     System.out.println();
@@ -134,7 +134,7 @@ public class ReportadorSemantico {
     }
 
     private static void mostrarWarnings(List<ErrorSemantico> warnings) {
-        System.out.println("⚠️  WARNINGS (RECOMENDACIONES):");
+        System.out.println(ANSI.warning("⚠️  WARNINGS (RECOMENDACIONES):"));
         System.out.println("═".repeat(60));
 
         // Agrupar warnings por tipo
@@ -147,7 +147,7 @@ public class ReportadorSemantico {
             ErrorSemantico.TipoError tipo = entry.getKey();
             List<ErrorSemantico> warningsDelTipo = entry.getValue();
 
-            System.out.printf("🔸 %s (%d ocurrencias):%n",
+            System.out.printf(ANSI.warning("🔸 %s (%d ocurrencias):%n"),
                     warningsDelTipo.get(0).getDescripcionTipo(), warningsDelTipo.size());
 
             for (ErrorSemantico warning : warningsDelTipo) {

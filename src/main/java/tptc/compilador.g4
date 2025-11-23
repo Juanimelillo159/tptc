@@ -1,9 +1,5 @@
 grammar compilador;
 
-@header {
-package tptc;
-}
-
 fragment DIGITO: [0-9];
 fragment LETRA: [a-zA-Z];
 fragment LETRA_DIGITO: [a-zA-Z0-9];

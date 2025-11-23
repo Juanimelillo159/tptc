@@ -66,7 +66,7 @@ public class ReportadorResultados {
         System.out.println("═".repeat(85));
 
         for (AnalizadorLexico.TokenInfo token : resultado.getTokens()) {
-            String estado = "✅ OK";
+            String estado = ANSI.success("OK");
             String lexemaCorto = AnalizadorLexico.truncarTexto(token.getLexema(), 14);
 
             System.out.printf("│ %-3d │ %-15s │ %-15s │ %-5d │ %-5d │ %-10s │%n",
@@ -88,11 +88,11 @@ public class ReportadorResultados {
         System.out.println("═".repeat(100));
 
         for (AnalizadorLexico.TokenInfo token : resultado.getTokens()) {
-            String estado = token.esError() ? "❌ ERROR" : "✅ OK";
-            String error = token.esError() ? AnalizadorLexico.truncarTexto(token.getMensajeError(), 24) : "";
+            String estado = token.esError() ? ANSI.error("ERROR") : ANSI.success("OK");
+            String error = token.esError() ? ANSI.error(AnalizadorLexico.truncarTexto(token.getMensajeError(), 24)) : "";
             String lexemaCorto = AnalizadorLexico.truncarTexto(token.getLexema(), 14);
 
-            System.out.printf("│ %-3d │ %-15s │ %-15s │ %-5d │ %-5d │ %-10s │ %-25s │%n",
+            System.out.printf("│ %-3d │ %-15s │ %-15s │ %-5d │ %-5d │ %-19s │ %-34s │%n",
                     token.getNumero(),
                     lexemaCorto,
                     token.getTipo(),
@@ -106,24 +106,24 @@ public class ReportadorResultados {
 
     private static void mostrarErroresDetallados(AnalizadorLexico.ResultadoAnalisis resultado) {
         System.out.println();
-        System.out.println("🚨 ERRORES LÉXICOS DETALLADOS:");
+        System.out.println(ANSI.error("🚨 ERRORES LÉXICOS DETALLADOS:"));
         System.out.println("═".repeat(80));
 
         boolean hayErrores = false;
         for (AnalizadorLexico.TokenInfo token : resultado.getTokens()) {
             if (token.esError()) {
                 hayErrores = true;
-                System.out.printf("⚠️  Línea %d, Columna %d: '%s'%n",
+                System.out.printf(ANSI.warning("⚠️  Línea %d, Columna %d: '%s'%n"),
                         token.getLinea(), token.getColumna(), token.getLexema());
                 System.out.printf("   Tipo detectado: %s%n", token.getTipo());
-                System.out.printf("   Error: %s%n", token.getMensajeError());
+                System.out.printf("   Error: %s%n", ANSI.error(token.getMensajeError()));
                 System.out.println("   Sugerencia: " + generarSugerencia(token));
                 System.out.println();
             }
         }
 
         if (!hayErrores) {
-            System.out.println("   ✅ No se encontraron errores léxicos");
+            System.out.println(ANSI.success("   ✅ No se encontraron errores léxicos"));
         }
 
         System.out.println("═".repeat(80));
@@ -194,9 +194,9 @@ public class ReportadorResultados {
                 resultado.getPorcentajeExito());
 
         if (resultado.fueExitoso()) {
-            System.out.println("🟢 Estado: EXITOSO");
+            System.out.println(ANSI.success("🟢 Estado: EXITOSO"));
         } else {
-            System.out.println("🔴 Estado: CON ERRORES LÉXICOS");
+            System.out.println(ANSI.error("🔴 Estado: CON ERRORES LÉXICOS"));
         }
     }
 }

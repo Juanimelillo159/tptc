@@ -1,7 +1,5 @@
-// Generated from d:/Desktop/informatica 5 año/Tecnicas de compilación/TC Final/tptc-Codigo-Intermedio/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
-
+// Generated from src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 package tptc;
-
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
@@ -19,12 +17,12 @@ public class compiladorLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__0=1, PA=2, PC=3, LA=4, LC=5, PyC=6, IGU=7, COM=8, EQ=9, NEQ=10, LT=11, 
-		LE=12, GT=13, GE=14, AND=15, OR=16, NOT=17, SUMA=18, RESTA=19, MULT=20, 
-		DIV=21, MOD=22, SUMA_ASIG=23, INT=24, DOUBLE=25, CHAR=26, VOID=27, BOOL=28, 
-		TRUE=29, FALSE=30, IF=31, ELSE=32, WHILE=33, FOR=34, RETURN=35, BREAK=36, 
-		CONTINUE=37, ENTERO=38, DECIMAL=39, CARACTER=40, IDENTIFICADOR=41, IDENTIFICADOR_INVALIDO=42, 
-		DECIMAL_INVALIDO=43, CARACTER_INVALIDO=44, ERROR_LEXICO=45, COMENTARIO_LINEA=46, 
+		T__0=1, PA=2, PC=3, LA=4, LC=5, PyC=6, IGU=7, COM=8, EQ=9, NEQ=10, LT=11,
+		LE=12, GT=13, GE=14, AND=15, OR=16, NOT=17, SUMA=18, RESTA=19, MULT=20,
+		DIV=21, MOD=22, SUMA_ASIG=23, INT=24, DOUBLE=25, CHAR=26, VOID=27, BOOL=28,
+		TRUE=29, FALSE=30, IF=31, ELSE=32, WHILE=33, FOR=34, RETURN=35, BREAK=36,
+		CONTINUE=37, ENTERO=38, DECIMAL=39, CARACTER=40, IDENTIFICADOR=41, IDENTIFICADOR_INVALIDO=42,
+		DECIMAL_INVALIDO=43, CARACTER_INVALIDO=44, ERROR_LEXICO=45, COMENTARIO_LINEA=46,
 		COMENTARIO_BLOQUE=47, WS=48;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
@@ -36,12 +34,12 @@ public class compiladorLexer extends Lexer {
 
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"T__0", "DIGITO", "LETRA", "LETRA_DIGITO", "PA", "PC", "LA", "LC", "PyC", 
-			"IGU", "COM", "EQ", "NEQ", "LT", "LE", "GT", "GE", "AND", "OR", "NOT", 
-			"SUMA", "RESTA", "MULT", "DIV", "MOD", "SUMA_ASIG", "INT", "DOUBLE", 
-			"CHAR", "VOID", "BOOL", "TRUE", "FALSE", "IF", "ELSE", "WHILE", "FOR", 
-			"RETURN", "BREAK", "CONTINUE", "ENTERO", "DECIMAL", "CARACTER", "IDENTIFICADOR", 
-			"IDENTIFICADOR_INVALIDO", "DECIMAL_INVALIDO", "CARACTER_INVALIDO", "ERROR_LEXICO", 
+			"T__0", "DIGITO", "LETRA", "LETRA_DIGITO", "PA", "PC", "LA", "LC", "PyC",
+			"IGU", "COM", "EQ", "NEQ", "LT", "LE", "GT", "GE", "AND", "OR", "NOT",
+			"SUMA", "RESTA", "MULT", "DIV", "MOD", "SUMA_ASIG", "INT", "DOUBLE",
+			"CHAR", "VOID", "BOOL", "TRUE", "FALSE", "IF", "ELSE", "WHILE", "FOR",
+			"RETURN", "BREAK", "CONTINUE", "ENTERO", "DECIMAL", "CARACTER", "IDENTIFICADOR",
+			"IDENTIFICADOR_INVALIDO", "DECIMAL_INVALIDO", "CARACTER_INVALIDO", "ERROR_LEXICO",
 			"COMENTARIO_LINEA", "COMENTARIO_BLOQUE", "WS"
 		};
 	}
@@ -49,22 +47,22 @@ public class compiladorLexer extends Lexer {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'main'", "'('", "')'", "'{'", "'}'", "';'", "'='", "','", "'=='", 
-			"'!='", "'<'", "'<='", "'>'", "'>='", "'&&'", "'||'", "'!'", "'+'", "'-'", 
-			"'*'", "'/'", "'%'", "'+='", "'int'", "'double'", "'char'", "'void'", 
-			"'bool'", "'true'", "'false'", "'if'", "'else'", "'while'", "'for'", 
+			null, "'main'", "'('", "')'", "'{'", "'}'", "';'", "'='", "','", "'=='",
+			"'!='", "'<'", "'<='", "'>'", "'>='", "'&&'", "'||'", "'!'", "'+'", "'-'",
+			"'*'", "'/'", "'%'", "'+='", "'int'", "'double'", "'char'", "'void'",
+			"'bool'", "'true'", "'false'", "'if'", "'else'", "'while'", "'for'",
 			"'return'", "'break'", "'continue'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, null, "PA", "PC", "LA", "LC", "PyC", "IGU", "COM", "EQ", "NEQ", 
-			"LT", "LE", "GT", "GE", "AND", "OR", "NOT", "SUMA", "RESTA", "MULT", 
-			"DIV", "MOD", "SUMA_ASIG", "INT", "DOUBLE", "CHAR", "VOID", "BOOL", "TRUE", 
-			"FALSE", "IF", "ELSE", "WHILE", "FOR", "RETURN", "BREAK", "CONTINUE", 
-			"ENTERO", "DECIMAL", "CARACTER", "IDENTIFICADOR", "IDENTIFICADOR_INVALIDO", 
-			"DECIMAL_INVALIDO", "CARACTER_INVALIDO", "ERROR_LEXICO", "COMENTARIO_LINEA", 
+			null, null, "PA", "PC", "LA", "LC", "PyC", "IGU", "COM", "EQ", "NEQ",
+			"LT", "LE", "GT", "GE", "AND", "OR", "NOT", "SUMA", "RESTA", "MULT",
+			"DIV", "MOD", "SUMA_ASIG", "INT", "DOUBLE", "CHAR", "VOID", "BOOL", "TRUE",
+			"FALSE", "IF", "ELSE", "WHILE", "FOR", "RETURN", "BREAK", "CONTINUE",
+			"ENTERO", "DECIMAL", "CARACTER", "IDENTIFICADOR", "IDENTIFICADOR_INVALIDO",
+			"DECIMAL_INVALIDO", "CARACTER_INVALIDO", "ERROR_LEXICO", "COMENTARIO_LINEA",
 			"COMENTARIO_BLOQUE", "WS"
 		};
 	}

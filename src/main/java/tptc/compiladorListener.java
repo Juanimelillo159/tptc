@@ -1,7 +1,5 @@
-// Generated from d:/Desktop/informatica 5 año/Tecnicas de compilación/TC Final/tptc-Codigo-Intermedio/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
-
+// Generated from src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 package tptc;
-
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**

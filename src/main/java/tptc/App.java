@@ -34,6 +34,10 @@ public class App {
     private static final boolean GENERAR_CODIGO_INTERMEDIO = true;
     private static final boolean MOSTRAR_CODIGO_INTERMEDIO = true;
 
+    // Configuración de Optimización
+    private static final boolean EJECUTAR_OPTIMIZACION = true;
+    private static final boolean MOSTRAR_CODIGO_OPTIMIZADO = true;
+
     public static void main(String[] args) {
         System.out.println("╔══════════════════════════════════════════════════════════════╗");
         System.out.println("║            COMPILADOR C++ COMPLETO - TPTC v2.0              ║");
@@ -152,35 +156,75 @@ public class App {
             }
 
             // === FASE 4: GENERACIÓN DE CÓDIGO INTERMEDIO ===
+            List<String> codigoIntermedio = null;
             if (GENERAR_CODIGO_INTERMEDIO && resultadoSemantico != null && resultadoSemantico.fueExitoso()) {
                 System.out.println("🔄 GENERANDO CÓDIGO INTERMEDIO...");
                 System.out.println("═".repeat(60));
     
-            try {
-                GeneradorCodigoIntermedio generador = new GeneradorCodigoIntermedio();
-                generador.visit(resultadoSintactico.getArbolSintactico());
-                List<String> codigoIntermedio = generador.getCodigoIntermedio();
-        
-                if (MOSTRAR_CODIGO_INTERMEDIO && !codigoIntermedio.isEmpty()) {
-                    generador.mostrarCodigo();
+                try {
+                    GeneradorCodigoIntermedio generador = new GeneradorCodigoIntermedio();
+                    generador.visit(resultadoSintactico.getArbolSintactico());
+                    codigoIntermedio = generador.getCodigoIntermedio();
             
-                // Mostrar estadísticas
-                    System.out.println("\n📊 RESUMEN CÓDIGO INTERMEDIO:");
-                    System.out.printf("   Líneas generadas: %d\n", codigoIntermedio.size());
-                    System.out.printf("   Temporales usadas: t0 - t%d\n", generador.tempCount - 1);
-                    System.out.printf("   Labels generados: L0 - L%d\n", generador.labelCount - 1);
-                } else if (codigoIntermedio.isEmpty()) {
-                    System.out.println("⚠️  No se generó código intermedio (lista vacía)");
+                    if (MOSTRAR_CODIGO_INTERMEDIO && !codigoIntermedio.isEmpty()) {
+                        generador.mostrarCodigo();
+
+                        // Mostrar estadísticas
+                        System.out.println("\n📊 RESUMEN CÓDIGO INTERMEDIO:");
+                        System.out.printf("   Líneas generadas: %d\n", codigoIntermedio.size());
+                        System.out.printf("   Temporales usadas: t0 - t%d\n", generador.tempCount - 1);
+                        System.out.printf("   Labels generados: L0 - L%d\n", generador.labelCount - 1);
+                    } else if (codigoIntermedio.isEmpty()) {
+                        System.out.println("⚠️  No se generó código intermedio (lista vacía)");
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("❌ Error al generar código intermedio: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            } else if (GENERAR_CODIGO_INTERMEDIO) {
+                System.out.println("⏸️  GENERACIÓN DE CÓDIGO INTERMEDIO OMITIDA");
+                System.out.println("   Motivo: Errores en fases anteriores impiden la generación");
             }
-        
-            } catch (Exception e) {
-                System.out.println("❌ Error al generar código intermedio: " + e.getMessage());
-            e.printStackTrace();
+
+            // === FASE 5: OPTIMIZACIÓN DE CÓDIGO ===
+            if (EJECUTAR_OPTIMIZACION && codigoIntermedio != null && !codigoIntermedio.isEmpty()) {
+                System.out.println();
+                System.out.println("🚀 EJECUTANDO OPTIMIZACIÓN DE CÓDIGO...");
+                System.out.println("═".repeat(60));
+
+                List<String> codigoOptimizado = OptimizadorCodigo.optimizar(codigoIntermedio);
+
+                if (MOSTRAR_CODIGO_OPTIMIZADO) {
+                    System.out.println();
+                    System.out.println("╔══════════════════════════════════════════════════════════════╗");
+                    System.out.println("║                 CÓDIGO OPTIMIZADO FINAL                    ║");
+                    System.out.println("╚══════════════════════════════════════════════════════════════╝");
+                    for (int i = 0; i < codigoOptimizado.size(); i++) {
+                        System.out.printf("%3d │ %s%n", i + 1, codigoOptimizado.get(i));
+                    }
+
+                    int lineasOriginales = codigoIntermedio.size();
+                    int lineasOptimizadas = codigoOptimizado.size();
+                    int reduccion = lineasOriginales - lineasOptimizadas;
+                    double porcentaje = (double) reduccion / lineasOriginales * 100;
+
+                    System.out.println("\n📊 RESUMEN DE OPTIMIZACIÓN:");
+                    System.out.printf("   Líneas originales: %d\n", lineasOriginales);
+                    System.out.printf("   Líneas finales:    %d\n", lineasOptimizadas);
+                    System.out.printf("   Reducción:         %d líneas (%.1f%%)\n", reduccion, porcentaje);
+                }
+
+                // Guardar código optimizado a archivo (Requisito)
+                try (PrintWriter out = new PrintWriter("output_optimizado.txt")) {
+                    for (String linea : codigoOptimizado) {
+                        out.println(linea);
+                    }
+                    System.out.println("\n💾 Código optimizado guardado en 'output_optimizado.txt'");
+                } catch (IOException e) {
+                    System.out.println("❌ Error al guardar código optimizado: " + e.getMessage());
+                }
             }
-        } else if (GENERAR_CODIGO_INTERMEDIO) {
-         System.out.println("⏸️  GENERACIÓN DE CÓDIGO INTERMEDIO OMITIDA");
-         System.out.println("   Motivo: Errores en fases anteriores impiden la generación");
-        }
 
             // === RESUMEN FINAL ===
             mostrarResumenFinal(resultadoLexico, resultadoSintactico, resultadoSemantico, exitoTotal);

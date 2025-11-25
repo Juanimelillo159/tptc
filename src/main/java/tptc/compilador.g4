@@ -12,6 +12,8 @@ PA: '(';
 PC: ')';
 LA: '{';
 LC: '}';
+CA: '[';
+CC: ']';
 PyC: ';';
 IGU: '=';
 COM: ',';
@@ -66,17 +68,17 @@ IDENTIFICADOR_INVALIDO: DIGITO+ LETRA (LETRA_DIGITO | '_')*;
 
 // Token para números decimales inválidos
 DECIMAL_INVALIDO:
-	DIGITO+ '.'
-	| '.' DIGITO+
-	| DIGITO+ '.' DIGITO* '.' DIGITO*;
+        DIGITO+ '.'
+        | '.' DIGITO+
+        | DIGITO+ '.' DIGITO* '.' DIGITO*;
 
 // Token para caracteres inválidos
 CARACTER_INVALIDO:
-	'\'' (~['\r\n] | '\\' .)* ('\'\'')?
-	| '\'' EOF;
+        '\'' (~['\r\n] | '\\' .)* ('\'\'')?
+        | '\'' EOF;
 
 // Token para cualquier secuencia de caracteres no reconocida
-ERROR_LEXICO: ~[ \t\n\r(){};<>=,!&|+\-*/%']+;
+ERROR_LEXICO: ~[ \t\n\r(){}\[\];<>=,!&|+\-*/%']+;
 
 COMENTARIO_LINEA: '//' ~[\r\n]* -> skip;
 COMENTARIO_BLOQUE: '/*' .*? '*/' -> skip;
@@ -97,51 +99,62 @@ tipo: INT | CHAR | DOUBLE | VOID | BOOL;
 bloque: LA instruccion* LC;
 
 instruccion:
-	declaracion_variable PyC
-	| asignacion PyC
-	| expresion PyC
-	| si
-	| mientras
-	| para
-	| retorno PyC
-	| BREAK PyC
-	| CONTINUE PyC
-	| bloque;
+        declaracion_variable PyC
+        | asignacion PyC
+        | expresion PyC
+        | si
+        | mientras
+        | para
+        | retorno PyC
+        | BREAK PyC
+        | CONTINUE PyC
+        | bloque;
 
-declaracion_variable: tipo IDENTIFICADOR (IGU expresion)?;
+declaracion_variable: tipo IDENTIFICADOR declarador_arreglo? (IGU inicializacion_variable)?;
+
+declarador_arreglo: CA (ENTERO)? CC;
+
+inicializacion_variable: inicializador_arreglo | expresion;
+
+inicializador_arreglo: LA lista_expresiones? LC;
+
+lista_expresiones: expresion (COM expresion)*;
 
 si: IF PA expresion PC instruccion (ELSE instruccion)?;
 
 mientras: WHILE PA expresion PC instruccion;
 
 para:
-	FOR PA (declaracion_variable | asignacion_simple)? PyC expresion? PyC (
-		asignacion_simple
-		| expresion
-	)? PC instruccion;
+        FOR PA (declaracion_variable | asignacion_simple)? PyC expresion? PyC (
+                asignacion_simple
+                | expresion
+        )? PC instruccion;
 
 retorno: RETURN expresion?;
 
 // CORRECCIÓN: Definir una regla base para asignacion
 asignacion: asignacion_simple | asignacion_suma;
 
-asignacion_simple: IDENTIFICADOR IGU expresion;
+asignacion_simple: (IDENTIFICADOR | acceso_arreglo) IGU expresion;
 asignacion_suma: IDENTIFICADOR SUMA_ASIG expresion;
 
+acceso_arreglo: IDENTIFICADOR CA expresion CC;
+
 expresion:
-	expresion OR expresion
-	| expresion AND expresion
-	| expresion (EQ | NEQ | LT | LE | GT | GE) expresion
-	| expresion (SUMA | RESTA) expresion
-	| expresion (MULT | DIV | MOD) expresion
-	| (SUMA | RESTA | NOT) expresion
-	| IDENTIFICADOR PA argumentos? PC
-	| IDENTIFICADOR
-	| ENTERO
-	| DECIMAL
-	| CARACTER
-	| TRUE
-	| FALSE
-	| PA expresion PC;
+        expresion OR expresion
+        | expresion AND expresion
+        | expresion (EQ | NEQ | LT | LE | GT | GE) expresion
+        | expresion (SUMA | RESTA) expresion
+        | expresion (MULT | DIV | MOD) expresion
+        | (SUMA | RESTA | NOT) expresion
+        | IDENTIFICADOR PA argumentos? PC
+        | acceso_arreglo
+        | IDENTIFICADOR
+        | ENTERO
+        | DECIMAL
+        | CARACTER
+        | TRUE
+        | FALSE
+        | PA expresion PC;
 
 argumentos: expresion (COM expresion)*;

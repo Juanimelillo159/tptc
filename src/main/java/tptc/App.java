@@ -26,8 +26,8 @@ public class App {
     private static final boolean MOSTRAR_TABLA_SIMBOLOS = true;
 
     // CONFIGURACIÓN SEMÁNTICA
-    private static final boolean DETENER_EN_ERRORES_LEXICOS = true;
-    private static final boolean DETENER_EN_ERRORES_SINTACTICOS = true;
+    private static final boolean DETENER_EN_ERRORES_LEXICOS = false;
+    private static final boolean DETENER_EN_ERRORES_SINTACTICOS = false;
     private static final boolean MOSTRAR_WARNINGS = true;
 
     // Configuración Codigo Intermedio
@@ -119,7 +119,7 @@ public class App {
             }
 
             // === FASE 3: ANÁLISIS SEMÁNTICO ===
-            if (EJECUTAR_ANALISIS_SEMANTICO && resultadoSintactico != null && resultadoSintactico.fueExitoso()) {
+            if (EJECUTAR_ANALISIS_SEMANTICO && resultadoSintactico != null) {
                 System.out.println("🧠 INICIANDO ANÁLISIS SEMÁNTICO...");
                 System.out.println("═".repeat(60));
 
@@ -147,7 +147,7 @@ public class App {
 
             } else if (EJECUTAR_ANALISIS_SEMANTICO) {
                 System.out.println("⏸️  ANÁLISIS SEMÁNTICO OMITIDO");
-                System.out.println("   Motivo: Errores en fases anteriores impiden el análisis semántico");
+                System.out.println("   Motivo: No se pudo construir el árbol sintáctico para continuar");
                 System.out.println();
             }
 
@@ -328,15 +328,22 @@ public class App {
             }
         }
 
-        // Mostrar información de tabla de símbolos si está disponible
-        if (resultadoSemantico != null && MOSTRAR_TABLA_SIMBOLOS) {
-            var stats = resultadoSemantico.getTablaSimbolos().getEstadisticas();
+        // Mostrar información de tabla de símbolos siempre que la opción esté habilitada
+        if (MOSTRAR_TABLA_SIMBOLOS) {
+            TablaSimbolos tablaParaMostrar = resultadoSemantico != null
+                    ? resultadoSemantico.getTablaSimbolos()
+                    : new TablaSimbolos();
+
+            var stats = tablaParaMostrar.getEstadisticas();
             System.out.println();
             System.out.println("📊 TABLA DE SÍMBOLOS:");
             System.out.printf("   Variables: %d | Funciones: %d | Ámbitos: %d%n",
                     stats.get("totalVariables"),
                     stats.get("totalFunciones"),
                     stats.get("nivelMaximoAmbito") + 1);
+
+            System.out.println();
+            System.out.println(tablaParaMostrar.toString());
         }
 
         System.out.println();

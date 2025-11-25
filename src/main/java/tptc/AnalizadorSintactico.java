@@ -112,8 +112,18 @@ public class AnalizadorSintactico {
         private List<String> generarCodigoIntermedio(ParseTree arbol) {
         if (!exitoso) return new ArrayList<>();
         GeneradorCodigoIntermedio generador = new GeneradorCodigoIntermedio();
-        generador.visit(arbol);
-        return generador.getCodigoIntermedio();
+            generador.visit(arbol);
+    
+            List<String> codigoIntermedio = generador.getCodigoIntermedio();
+    
+            Optimizador optimizador = new Optimizador(codigoIntermedio);
+            List<String> codigoOptimizado = optimizador.optimizar();
+
+
+            optimizador.mostrarReporteOptimizacion();
+            optimizador.mostrarCodigoOptimizado();
+    
+            return codigoOptimizado;
         }
 
         public List<String> getCodigoIntermedio() {

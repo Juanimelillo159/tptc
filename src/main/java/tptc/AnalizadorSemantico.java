@@ -391,7 +391,6 @@ public class AnalizadorSemantico extends compiladorBaseListener {
 
     @Override
     public void enterMientras(compiladorParser.MientrasContext ctx) {
-        boolean estadoAnterior = dentroDeLoop;
         dentroDeLoop = true;
 
         // Verificar que la condición sea booleana
@@ -411,7 +410,6 @@ public class AnalizadorSemantico extends compiladorBaseListener {
 
     @Override
     public void enterPara(compiladorParser.ParaContext ctx) {
-        boolean estadoAnterior = dentroDeLoop;
         dentroDeLoop = true;
 
         // Verificar la condición si existe

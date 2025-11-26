@@ -19,6 +19,7 @@ public class SimboloFuncion extends Simbolo {
         this.tieneReturn = false;
         this.esMain = nombre.equals("main");
         this.inicializado = true; // Las funciones se consideran "inicializadas" al declararse
+        this.ambito = "global";   // Todas las funciones viven en el ámbito global
     }
 
     @Override

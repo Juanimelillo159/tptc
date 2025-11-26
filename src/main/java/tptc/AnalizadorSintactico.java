@@ -11,7 +11,7 @@ import java.util.*;
  */
 public class AnalizadorSintactico {
     
-    // Clase para almacenar errores sintácticos
+    // ===================== CLASE ERROR SINTÁCTICO =====================
     public static class ErrorSintactico {
         private int linea;
         private int columna;
@@ -27,7 +27,6 @@ public class AnalizadorSintactico {
             this.contexto = contexto;
         }
         
-        // Getters
         public int getLinea() { return linea; }
         public int getColumna() { return columna; }
         public String getMensaje() { return mensaje; }
@@ -37,11 +36,11 @@ public class AnalizadorSintactico {
         @Override
         public String toString() {
             return String.format("Línea %d, Col %d: %s (Token: '%s')", 
-                               linea, columna, mensaje, tokenOfensivo);
+                                 linea, columna, mensaje, tokenOfensivo);
         }
     }
     
-    // Listener personalizado para capturar errores sintácticos
+    // ===================== LISTENER DE ERRORES =====================
     public static class ManejadorErroresSintacticos extends BaseErrorListener {
         private List<ErrorSintactico> errores = new ArrayList<>();
         
@@ -57,7 +56,6 @@ public class AnalizadorSintactico {
                 Token token = (Token) offendingSymbol;
                 tokenOfensivo = token.getText();
                 
-                // Obtener contexto del parser si es posible
                 if (recognizer instanceof Parser) {
                     Parser parser = (Parser) recognizer;
                     contexto = obtenerContexto(parser, e);
@@ -65,7 +63,12 @@ public class AnalizadorSintactico {
             }
             
             ErrorSintactico error = new ErrorSintactico(
-                line, charPositionInLine + 1, msg, tokenOfensivo, contexto);
+                line,
+                charPositionInLine + 1,
+                msg,
+                tokenOfensivo,
+                contexto
+            );
             errores.add(error);
         }
         
@@ -74,7 +77,6 @@ public class AnalizadorSintactico {
                 return e.getCtx().getClass().getSimpleName().replace("Context", "");
             }
             
-            // Intentar obtener el contexto actual del parser
             RuleContext ctx = parser.getContext();
             if (ctx != null) {
                 return ctx.getClass().getSimpleName().replace("Context", "");
@@ -88,7 +90,7 @@ public class AnalizadorSintactico {
         public int getNumeroErrores() { return errores.size(); }
     }
     
-    // Clase para almacenar resultados del análisis sintáctico
+    // ===================== RESULTADO DEL ANÁLISIS =====================
     public static class ResultadoAnalisisSintactico {
         private ParseTree arbolSintactico;
         private List<ErrorSintactico> errores;
@@ -96,40 +98,71 @@ public class AnalizadorSintactico {
         private long tiempoAnalisis;
         private int numeroNodos;
         private int profundidadMaxima;
-         private List<String> codigoIntermedio;
+
+        // Opcional: guardar el código intermedio / optimizado si querés
+        private List<String> codigoIntermedioGenerado;
+        private List<String> codigoOptimizadoGenerado;
         
-        public ResultadoAnalisisSintactico(ParseTree arbol, List<ErrorSintactico> errores, 
-                                         long tiempoAnalisis) {
+        public ResultadoAnalisisSintactico(ParseTree arbol,
+                                           List<ErrorSintactico> errores, 
+                                           long tiempoAnalisis) {
             this.arbolSintactico = arbol;
             this.errores = errores;
             this.exitoso = errores.isEmpty();
             this.tiempoAnalisis = tiempoAnalisis;
             this.numeroNodos = contarNodos(arbol);
             this.profundidadMaxima = calcularProfundidad(arbol);
-             this.codigoIntermedio = generarCodigoIntermedio(arbol);
+            this.codigoIntermedioGenerado = new ArrayList<>();
+            this.codigoOptimizadoGenerado = new ArrayList<>();
         }
 
-        private List<String> generarCodigoIntermedio(ParseTree arbol) {
-        if (!exitoso) return new ArrayList<>();
-        GeneradorCodigoIntermedio generador = new GeneradorCodigoIntermedio();
-            generador.visit(arbol);
-    
-            List<String> codigoIntermedio = generador.getCodigoIntermedio();
-    
-            Optimizador optimizador = new Optimizador(codigoIntermedio);
-            List<String> codigoOptimizado = optimizador.optimizar();
+        // --------- FASE 5 + 6: CÓDIGO INTERMEDIO Y OPTIMIZACIÓN ---------
 
+        /**
+         * Genera el código intermedio y el código optimizado a partir del
+         * árbol sintáctico, mostrando la salida por consola y exportando
+         * ambos a archivos .txt usando el nombre base indicado.
+         *
+         * Ejemplo: baseNombreArchivo = "ejemplo_correcto"
+         * -> "ejemplo_correcto_codigo_intermedio.txt"
+         * -> "ejemplo_correcto_codigo_optimizado.txt"
+         */
+        public void generarCodigoIntermedioYOptimizado(String baseNombreArchivo) {
+            if (!exitoso || arbolSintactico == null) {
+                System.out.println(ColoresConsole.rojo(
+                    "❌ No se puede generar código intermedio: el análisis sintáctico tuvo errores."));
+                return;
+            }
 
-            optimizador.mostrarReporteOptimizacion();
-            optimizador.mostrarCodigoOptimizado();
-    
-            return codigoOptimizado;
+            // ===== 5. GENERACIÓN DE CÓDIGO INTERMEDIO =====
+            GeneradorCodigoIntermedio generador = new GeneradorCodigoIntermedio();
+            generador.visit(arbolSintactico);
+
+            // Mostrar por consola (con el formato tipo ejemplo)
+            generador.mostrarCodigo();
+
+            // Exportar a archivo
+            String archivoIntermedio = baseNombreArchivo + "_codigo_intermedio.txt";
+            generador.exportarComoTxt(archivoIntermedio);
+
+            this.codigoIntermedioGenerado = generador.getCodigoIntermedio();
+
+            // ===== 6. OPTIMIZACIÓN DE CÓDIGO =====
+            OptimizadorCodigoIntermedio optimizador =
+                    new OptimizadorCodigoIntermedio(this.codigoIntermedioGenerado);
+
+            optimizador.optimizar();
+            optimizador.mostrarResumen();
+            optimizador.mostrarCodigoOptimizadoEnConsola();
+
+            String archivoOptimizado = baseNombreArchivo + "_codigo_optimizado.txt";
+            optimizador.exportarComoTxt(archivoOptimizado);
+
+            this.codigoOptimizadoGenerado = optimizador.getCodigoOptimizado();
         }
 
-        public List<String> getCodigoIntermedio() {
-            return codigoIntermedio;
-        }
-        
+        // --------- helpers internos para estadísticas del árbol ---------
+
         private int contarNodos(ParseTree nodo) {
             if (nodo == null) return 0;
             int count = 1;
@@ -148,15 +181,25 @@ public class AnalizadorSintactico {
             return 1 + maxProfundidad;
         }
         
-        // Getters
+        // --------- Getters ---------
         public ParseTree getArbolSintactico() { return arbolSintactico; }
         public List<ErrorSintactico> getErrores() { return errores; }
         public boolean fueExitoso() { return exitoso; }
         public long getTiempoAnalisis() { return tiempoAnalisis; }
         public int getNumeroNodos() { return numeroNodos; }
         public int getProfundidadMaxima() { return profundidadMaxima; }
+
+        public List<String> getCodigoIntermedioGenerado() {
+            return new ArrayList<>(codigoIntermedioGenerado);
+        }
+
+        public List<String> getCodigoOptimizadoGenerado() {
+            return new ArrayList<>(codigoOptimizadoGenerado);
+        }
     }
     
+    // ===================== MÉTODOS PÚBLICOS DE ANÁLISIS =====================
+
     /**
      * Analiza un archivo y retorna el resultado del análisis sintáctico
      */
@@ -187,7 +230,7 @@ public class AnalizadorSintactico {
             parser.removeErrorListeners(); // Quitar el listener por defecto
             parser.addErrorListener(manejadorErrores);
             
-            // Configurar estrategia de recuperación de errores
+            // Estrategia de recuperación de errores
             parser.setErrorHandler(new DefaultErrorStrategy());
             
             // Analizar desde la regla inicial (programa)
@@ -196,12 +239,20 @@ public class AnalizadorSintactico {
             long tiempoFin = System.currentTimeMillis();
             long tiempoAnalisis = tiempoFin - tiempoInicio;
             
-            return new ResultadoAnalisisSintactico(arbol, manejadorErrores.getErrores(), tiempoAnalisis);
+            return new ResultadoAnalisisSintactico(
+                    arbol,
+                    manejadorErrores.getErrores(),
+                    tiempoAnalisis
+            );
             
         } catch (Exception e) {
-            // En caso de error catastrófico
             List<ErrorSintactico> errores = new ArrayList<>();
-            errores.add(new ErrorSintactico(0, 0, "Error catastrófico: " + e.getMessage(), "", "programa"));
+            errores.add(new ErrorSintactico(
+                    0, 0,
+                    "Error catastrófico: " + e.getMessage(),
+                    "",
+                    "programa"
+            ));
             
             long tiempoFin = System.currentTimeMillis();
             return new ResultadoAnalisisSintactico(null, errores, tiempoFin - tiempoInicio);
@@ -212,15 +263,14 @@ public class AnalizadorSintactico {
      * Realiza análisis sintáctico con opciones avanzadas
      */
     public static ResultadoAnalisisSintactico analizarConOpciones(String codigoFuente, 
-                                                                boolean modoRecuperacion,
-                                                                boolean trazaDetallada) {
+                                                                  boolean modoRecuperacion,
+                                                                  boolean trazaDetallada) {
         long tiempoInicio = System.currentTimeMillis();
         
         try {
             CharStream input = CharStreams.fromString(codigoFuente);
             compiladorLexer lexer = new compiladorLexer(input);
             
-            // Configurar traza si se solicita
             if (trazaDetallada) {
                 lexer.removeErrorListeners();
                 lexer.addErrorListener(ConsoleErrorListener.INSTANCE);
@@ -233,14 +283,12 @@ public class AnalizadorSintactico {
             parser.removeErrorListeners();
             parser.addErrorListener(manejadorErrores);
             
-            // Configurar estrategia de recuperación
             if (modoRecuperacion) {
                 parser.setErrorHandler(new DefaultErrorStrategy());
             } else {
                 parser.setErrorHandler(new BailErrorStrategy()); // Fallar rápido
             }
             
-            // Traza detallada si se solicita
             if (trazaDetallada) {
                 parser.setTrace(true);
             }
@@ -248,16 +296,30 @@ public class AnalizadorSintactico {
             ParseTree arbol = parser.programa();
             
             long tiempoFin = System.currentTimeMillis();
-            return new ResultadoAnalisisSintactico(arbol, manejadorErrores.getErrores(), 
-                                                 tiempoFin - tiempoInicio);
+            return new ResultadoAnalisisSintactico(
+                    arbol,
+                    manejadorErrores.getErrores(), 
+                    tiempoFin - tiempoInicio
+            );
             
         } catch (Exception e) {
             List<ErrorSintactico> errores = new ArrayList<>();
-            errores.add(new ErrorSintactico(0, 0, "Error: " + e.getMessage(), "", "programa"));
-            return new ResultadoAnalisisSintactico(null, errores, System.currentTimeMillis() - tiempoInicio);
+            errores.add(new ErrorSintactico(
+                    0, 0,
+                    "Error: " + e.getMessage(),
+                    "",
+                    "programa"
+            ));
+            return new ResultadoAnalisisSintactico(
+                    null,
+                    errores,
+                    System.currentTimeMillis() - tiempoInicio
+            );
         }
     }
     
+    // ===================== UTILIDADES =====================
+
     /**
      * Obtiene información estadística del árbol sintáctico
      */
@@ -295,5 +357,4 @@ public class AnalizadorSintactico {
         }
         return contenido.toString();
     }
-    
 }

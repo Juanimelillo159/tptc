@@ -20,11 +20,8 @@ public class ReportadorSintactico {
         }
 
         mostrarAnalisisDetallado(resultado);
-        
-        // Mostrar código intermedio optimizado si está disponible
-        if (resultado.fueExitoso() && resultado.getCodigoIntermedio() != null) {
-            mostrarCodigoIntermedio(resultado.getCodigoIntermedio());
-        }
+        // ⚠️ IMPORTANTE: acá NO se muestra código intermedio.
+        // La generación/optimización de código va en App, en las fases 5 y 6.
     }
 
     /**
@@ -91,8 +88,8 @@ public class ReportadorSintactico {
             for (int i = 0; i < erroresLinea.size(); i++) {
                 AnalizadorSintactico.ErrorSintactico error = erroresLinea.get(i);
                 System.out.printf(ColoresConsole.rojo("   %d. %s%n"), i + 1, error.toString());
-                System.out.printf(ColoresConsole.amarillo("      Token: '%s' | Contexto: %s%n"), 
-                    error.getTokenOfensivo(), error.getContexto());
+                System.out.printf(ColoresConsole.amarillo("      Token: '%s' | Contexto: %s%n"),
+                        error.getTokenOfensivo(), error.getContexto());
                 if (i < erroresLinea.size() - 1) {
                     System.out.println();
                 }
@@ -110,7 +107,7 @@ public class ReportadorSintactico {
 
         if (resultado.getArbolSintactico() != null) {
             Map<String, Integer> estadisticas = AnalizadorSintactico.obtenerEstadisticasArbol(resultado.getArbolSintactico());
-            
+
             System.out.println(ColoresConsole.cyan("🌿 CONSTRUCCIONES DETECTADAS:"));
             System.out.println(ColoresConsole.cyan("─".repeat(35)));
 
@@ -123,7 +120,7 @@ public class ReportadorSintactico {
             mostrarConstruccion(estadisticas, "Para", "Bucles for", "⚡");
 
             System.out.println();
-            System.out.printf(ColoresConsole.cyan("   📊 Nodos por nivel: %d%n"), resultado.getProfundidadMaxima());
+            System.out.printf(ColoresConsole.cyan("   📊 Profundidad máxima del AST: %d%n"), resultado.getProfundidadMaxima());
         } else {
             System.out.println(ColoresConsole.amarillo("   ⚠️  No se pudo generar el árbol sintáctico"));
         }
@@ -137,41 +134,6 @@ public class ReportadorSintactico {
         if (cantidad > 0) {
             System.out.printf(ColoresConsole.cyan("   %s %-20s: %d%n"), emoji, descripcion, cantidad);
         }
-    }
-
-    private static void mostrarCodigoIntermedio(List<String> codigoIntermedio) {
-        System.out.println(ColoresConsole.azul("🔄 CÓDIGO INTERMEDIO GENERADO (3AC):"));
-        System.out.println(ColoresConsole.cyan("═".repeat(60)));
-
-        if (codigoIntermedio != null && !codigoIntermedio.isEmpty()) {
-            for (String linea : codigoIntermedio) {
-                // Colorear diferentes tipos de instrucciones
-                String lineaColoreada = colorearLineaCodigo(linea);
-                System.out.println("  " + lineaColoreada);
-            }
-        } else {
-            System.out.println(ColoresConsole.amarillo("   ⚠️  No se generó código intermedio"));
-        }
-
-        System.out.println(ColoresConsole.cyan("═".repeat(60)));
-        System.out.println();
-    }
-
-    private static String colorearLineaCodigo(String linea) {
-        if (linea.startsWith("INICIO") || linea.startsWith("FIN")) {
-            return ColoresConsole.verde(linea);
-        } else if (linea.startsWith("FUNCION")) {
-            return ColoresConsole.azul(linea);
-        } else if (linea.startsWith("DECLARAR")) {
-            return ColoresConsole.cyan(linea);
-        } else if (linea.startsWith("return")) {
-            return ColoresConsole.magenta(linea);
-        } else if (linea.contains("=")) {
-            return ColoresConsole.amarillo(linea);
-        } else if (linea.startsWith("if") || linea.startsWith("goto")) {
-            return ColoresConsole.ROJO + linea + ColoresConsole.RESET;
-        }
-        return linea;
     }
 
     /**
@@ -211,21 +173,16 @@ public class ReportadorSintactico {
             if (resultado.getArbolSintactico() != null) {
                 writer.println("ESTADÍSTICAS DEL ÁRBOL SINTÁCTICO:");
                 writer.println("-".repeat(40));
-                Map<String, Integer> estadisticas = AnalizadorSintactico.obtenerEstadisticasArbol(resultado.getArbolSintactico());
+                Map<String, Integer> estadisticas = AnalizadorSintactico.obtenerEstadisticasArbol(
+                        resultado.getArbolSintactico());
                 for (Map.Entry<String, Integer> entry : estadisticas.entrySet()) {
                     writer.println(entry.getKey() + ": " + entry.getValue());
                 }
                 writer.println();
             }
 
-            // Código intermedio
-            if (resultado.getCodigoIntermedio() != null && !resultado.getCodigoIntermedio().isEmpty()) {
-                writer.println("CÓDIGO INTERMEDIO GENERADO:");
-                writer.println("-".repeat(40));
-                for (String linea : resultado.getCodigoIntermedio()) {
-                    writer.println(linea);
-                }
-            }
+            // ⚠️ Ya no se escribe código intermedio en este reporte.
+            // Ese código se exporta por separado desde App (fases 5 y 6).
 
             writer.println();
             writer.println("=".repeat(60));

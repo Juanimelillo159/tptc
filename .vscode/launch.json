@@ -23,7 +23,7 @@
             "type": "antlr-debug",
             "request": "launch",
             "grammar": "${file}",
-            "input": "input/programa.txt",
+            "input": "input/Ejemplo-Final-Correcto.txt",
             "startRule": "programa",
             "printParseTree": true,
             "visualParseTree": true

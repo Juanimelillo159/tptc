@@ -13,7 +13,6 @@ public class AnalizadorSemantico extends compiladorBaseListener {
     private List<ErrorSemantico> warnings;
     private boolean dentroDeLoop;
     private boolean hayReturn;
-    // Removido nivelAnidamiento ya que no se usa
 
     public AnalizadorSemantico() {
         this.tablaSimbolos = new TablaSimbolos();
@@ -23,7 +22,8 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         this.hayReturn = false;
     }
 
-    // Clase para almacenar resultados del análisis
+    // ================== CLASE RESULTADO ==================
+
     public static class ResultadoAnalisisSemantico {
         private TablaSimbolos tablaSimbolos;
         private List<ErrorSemantico> errores;
@@ -32,7 +32,7 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         private long tiempoAnalisis;
 
         public ResultadoAnalisisSemantico(TablaSimbolos tabla, List<ErrorSemantico> errores,
-                List<ErrorSemantico> warnings, long tiempo) {
+                                          List<ErrorSemantico> warnings, long tiempo) {
             this.tablaSimbolos = tabla;
             this.errores = new ArrayList<>(errores);
             this.warnings = new ArrayList<>(warnings);
@@ -40,7 +40,6 @@ public class AnalizadorSemantico extends compiladorBaseListener {
             this.tiempoAnalisis = tiempo;
         }
 
-        // Getters
         public TablaSimbolos getTablaSimbolos() {
             return tablaSimbolos;
         }
@@ -70,9 +69,8 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         }
     }
 
-    /**
-     * Realiza el análisis semántico del AST
-     */
+    // ================== MÉTODO PRINCIPAL DE ANÁLISIS ==================
+
     public static ResultadoAnalisisSemantico analizar(ParseTree arbol) {
         long tiempoInicio = System.currentTimeMillis();
 
@@ -97,19 +95,14 @@ public class AnalizadorSemantico extends compiladorBaseListener {
                 tiempoFin - tiempoInicio);
     }
 
-    /**
-     * Primera pasada: registra todas las funciones en la tabla de símbolos
-     */
+    // ================== REGISTRO DE FUNCIONES (1ª PASADA) ==================
+
     private void registrarFunciones(ParseTree arbol) {
-        // Usar un walker específico solo para registrar funciones
         RegistradorFunciones registrador = new RegistradorFunciones(tablaSimbolos);
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(registrador, arbol);
     }
 
-    /**
-     * Clase auxiliar para registrar funciones en la primera pasada
-     */
     private static class RegistradorFunciones extends compiladorBaseListener {
         private TablaSimbolos tabla;
         private SimboloFuncion funcionActual;
@@ -124,6 +117,7 @@ public class AnalizadorSemantico extends compiladorBaseListener {
             SimboloFuncion main = new SimboloFuncion("main", "int",
                     ctx.start.getLine(),
                     ctx.start.getCharPositionInLine() + 1);
+            main.setAmbito("global");
             tabla.insertar(main);
             funcionActual = main;
         }
@@ -141,6 +135,7 @@ public class AnalizadorSemantico extends compiladorBaseListener {
             SimboloFuncion funcion = new SimboloFuncion(nombre, tipoRetorno,
                     ctx.start.getLine(),
                     ctx.start.getCharPositionInLine() + 1);
+            funcion.setAmbito("global");
             tabla.insertar(funcion);
             funcionActual = funcion;
         }
@@ -160,20 +155,19 @@ public class AnalizadorSemantico extends compiladorBaseListener {
                         ctx.start.getLine(),
                         ctx.start.getCharPositionInLine() + 1,
                         true);
+                parametro.setAmbito(funcionActual.getNombre());
                 funcionActual.agregarParametro(parametro);
             }
         }
     }
 
-    // === MANEJO DE FUNCIONES ===
+    // ================== MANEJO DE FUNCIONES ==================
 
     @Override
     public void enterDefinicion_funcion_main(compiladorParser.Definicion_funcion_mainContext ctx) {
-        // La función main ya fue registrada en la primera pasada
         SimboloFuncion main = tablaSimbolos.buscarFuncion("main");
 
         if (main == null) {
-            // Error: esto no debería pasar si la primera pasada funcionó
             agregarError(ErrorSemantico.TipoError.FUNCION_NO_DECLARADA,
                     "Error interno: función main no encontrada",
                     ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
@@ -204,11 +198,9 @@ public class AnalizadorSemantico extends compiladorBaseListener {
     public void enterDefinicion_funcion(compiladorParser.Definicion_funcionContext ctx) {
         String nombre = ctx.IDENTIFICADOR().getText();
 
-        // La función ya fue registrada en la primera pasada, solo la obtenemos
         SimboloFuncion funcion = tablaSimbolos.buscarFuncion(nombre);
 
         if (funcion == null) {
-            // Error: esto no debería pasar si la primera pasada funcionó
             agregarError(ErrorSemantico.TipoError.FUNCION_NO_DECLARADA,
                     "Error interno: función '" + nombre + "' no encontrada",
                     ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
@@ -238,114 +230,152 @@ public class AnalizadorSemantico extends compiladorBaseListener {
 
     @Override
     public void enterParametro(compiladorParser.ParametroContext ctx) {
-        // Solo agregar parámetros al ámbito local, NO a la función
-        // (ya fueron agregados en la primera pasada)
+        // Parámetros al ámbito local (ya fueron agregados a la función en la 1ª pasada)
         String nombre = ctx.IDENTIFICADOR().getText();
         String tipo = ctx.tipo().getText();
 
         SimboloVariable parametro = new SimboloVariable(nombre, tipo,
                 ctx.start.getLine(),
                 ctx.start.getCharPositionInLine() + 1,
-                true); // es parámetro
+                true);
+
+        SimboloFuncion f = tablaSimbolos.getFuncionActual();
+        String ambito = (f != null) ? f.getNombre() : "global";
+        parametro.setAmbito(ambito);
 
         if (!tablaSimbolos.insertar(parametro)) {
             agregarError(ErrorSemantico.TipoError.REDEFINICION_VARIABLE,
                     "El parámetro '" + nombre + "' ya está definido",
                     ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
         }
-        // NO agregar a la función aquí porque ya se hizo en la primera pasada
     }
 
-    // === MANEJO DE VARIABLES ===
+    // ================== MANEJO DE VARIABLES (GLOBALES Y LOCALES) ==================
+
+    @Override
+    public void enterDeclaracion_global(compiladorParser.Declaracion_globalContext ctx) {
+        String tipo = ctx.tipo().getText();
+
+        for (compiladorParser.DeclaradorContext declCtx : ctx.declarador()) {
+            String nombre = declCtx.IDENTIFICADOR().getText();
+
+            SimboloVariable variable = new SimboloVariable(
+                    nombre,
+                    tipo,
+                    declCtx.start.getLine(),
+                    declCtx.start.getCharPositionInLine() + 1
+            );
+            variable.setAmbito("global");
+
+            // Si es arreglo global: IDENTIFICADOR '[' ENTERO ']'
+            if (declCtx.ENTERO() != null) {
+                int tam = Integer.parseInt(declCtx.ENTERO().getText());
+                variable.setArreglo(tam);
+            }
+
+            if (!tablaSimbolos.insertar(variable)) {
+                agregarError(ErrorSemantico.TipoError.REDEFINICION_VARIABLE,
+                        "La variable global '" + nombre + "' ya está declarada",
+                        declCtx.start.getLine(), declCtx.start.getCharPositionInLine() + 1);
+            }
+        }
+    }
 
     @Override
     public void enterDeclaracion_variable(compiladorParser.Declaracion_variableContext ctx) {
-        String nombre = ctx.IDENTIFICADOR().getText();
         String tipo = ctx.tipo().getText();
 
-        SimboloVariable variable = new SimboloVariable(nombre, tipo,
-                ctx.start.getLine(),
-                ctx.start.getCharPositionInLine() + 1);
+        // Ambito: nombre de la función actual (o global si no hay)
+        SimboloFuncion f = tablaSimbolos.getFuncionActual();
+        String ambito = (f != null) ? f.getNombre() : "global";
 
-        if (!tablaSimbolos.insertar(variable)) {
-            agregarError(ErrorSemantico.TipoError.REDEFINICION_VARIABLE,
-                    "La variable '" + nombre + "' ya está declarada en este ámbito",
-                    ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
-        }
+        for (compiladorParser.DeclaradorContext declCtx : ctx.declarador()) {
+            String nombre = declCtx.IDENTIFICADOR().getText();
 
-        // Si hay inicialización, marcar como inicializada
-        if (ctx.expresion() != null) {
-            variable.setInicializado(true);
-            String tipoExpresion = analizarTipoExpresion(ctx.expresion());
-            verificarCompatibilidadTipos(tipo, tipoExpresion, ctx.expresion());
+            SimboloVariable variable = new SimboloVariable(
+                    nombre,
+                    tipo,
+                    declCtx.start.getLine(),
+                    declCtx.start.getCharPositionInLine() + 1
+            );
+            variable.setAmbito(ambito);
+
+            // Arreglo local
+            if (declCtx.ENTERO() != null) {
+                int tam = Integer.parseInt(declCtx.ENTERO().getText());
+                variable.setArreglo(tam);
+            }
+
+            if (!tablaSimbolos.insertar(variable)) {
+                agregarError(ErrorSemantico.TipoError.REDEFINICION_VARIABLE,
+                        "La variable '" + nombre + "' ya está declarada en este ámbito",
+                        declCtx.start.getLine(), declCtx.start.getCharPositionInLine() + 1);
+            }
         }
     }
 
+    // ================== ASIGNACIONES (VARIABLES Y ARREGLOS) ==================
+
     @Override
     public void enterAsignacion_simple(compiladorParser.Asignacion_simpleContext ctx) {
-        procesarAsignacion(ctx.IDENTIFICADOR(), ctx.expresion(), ctx);
+        procesarAsignacion(ctx.referencia(), ctx.expresion(), ctx);
     }
 
     @Override
     public void enterAsignacion_suma(compiladorParser.Asignacion_sumaContext ctx) {
-        procesarAsignacion(ctx.IDENTIFICADOR(), ctx.expresion(), ctx);
+        procesarAsignacion(ctx.referencia(), ctx.expresion(), ctx);
     }
 
-    // Método auxiliar común para ambos tipos de asignación
-    private void procesarAsignacion(TerminalNode identificador, 
-                              compiladorParser.ExpresionContext exprCtx,
-                              ParserRuleContext ctx) {
-    String nombre = identificador.getText();
-    Simbolo simbolo = tablaSimbolos.buscar(nombre);
+    private void procesarAsignacion(compiladorParser.ReferenciaContext refCtx,
+                                    compiladorParser.ExpresionContext exprCtx,
+                                    ParserRuleContext ctx) {
+        String nombre = refCtx.IDENTIFICADOR().getText();
+        Simbolo simbolo = tablaSimbolos.buscar(nombre);
 
-    if (simbolo == null) {
-        agregarError(ErrorSemantico.TipoError.VARIABLE_NO_DECLARADA,
-                "La variable '" + nombre + "' no está declarada",
-                ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
-    } else if (simbolo instanceof SimboloVariable) {
-        SimboloVariable variable = (SimboloVariable) simbolo;
-        variable.setInicializado(true);
-        variable.setUtilizado(true);
+        if (simbolo == null) {
+            agregarError(ErrorSemantico.TipoError.VARIABLE_NO_DECLARADA,
+                    "La variable '" + nombre + "' no está declarada",
+                    ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
+            return;
+        }
 
-        String tipoExpresion = analizarTipoExpresion(exprCtx);
-        verificarCompatibilidadTipos(variable.getTipoDato(), tipoExpresion, exprCtx);
+        if (simbolo instanceof SimboloVariable) {
+            SimboloVariable variable = (SimboloVariable) simbolo;
+            variable.setInicializado(true);
+            variable.setUtilizado(true);
+
+            String tipoExpresion = analizarTipoExpresion(exprCtx);
+            verificarCompatibilidadTipos(variable.getTipoDato(), tipoExpresion, exprCtx);
+
+            // Si es acceso a arreglo, verificar índice int
+            if (refCtx.expresion() != null) {
+                String tipoIndice = analizarTipoExpresion(refCtx.expresion());
+                if (!tipoIndice.equals("int")) {
+                    agregarError(ErrorSemantico.TipoError.TIPOS_INCOMPATIBLES,
+                            "El índice del arreglo '" + nombre + "' debe ser de tipo int",
+                            refCtx.expresion().start.getLine(),
+                            refCtx.expresion().start.getCharPositionInLine() + 1);
+                }
+            }
+        }
     }
-}
 
-    // === MANEJO DE EXPRESIONES ===
+    // ================== EXPRESIONES ==================
 
     @Override
     public void enterExpresion(compiladorParser.ExpresionContext ctx) {
-        // Verificar uso de variables en expresiones
-        if (ctx.IDENTIFICADOR() != null) {
+        // 1) Llamada a función: IDENTIFICADOR PA argumentos? PC
+        if (ctx.IDENTIFICADOR() != null && ctx.argumentos() != null) {
             String nombre = ctx.IDENTIFICADOR().getText();
-
-            // Si no es una llamada a función
-            if (ctx.argumentos() == null) {
-                Simbolo simbolo = tablaSimbolos.buscar(nombre);
-
-                if (simbolo == null) {
-                    agregarError(ErrorSemantico.TipoError.VARIABLE_NO_DECLARADA,
-                            "La variable '" + nombre + "' no está declarada",
-                            ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
-                } else if (simbolo instanceof SimboloVariable) {
-                    SimboloVariable variable = (SimboloVariable) simbolo;
-
-                    if (!variable.isInicializada() && !variable.esParametro()) {
-                        agregarError(ErrorSemantico.TipoError.VARIABLE_NO_INICIALIZADA,
-                                "La variable '" + nombre + "' se usa sin inicializar",
-                                ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
-                    }
-
-                    variable.setUtilizado(true);
-                }
-            } else {
-                // Es una llamada a función
-                verificarLlamadaFuncion(nombre, ctx.argumentos(), ctx);
-            }
+            verificarLlamadaFuncion(nombre, ctx.argumentos(), ctx);
         }
 
-        // También marcar variables utilizadas en sub-expresiones
+        // 2) Uso de variable o arreglo: referencia
+        if (ctx.referencia() != null) {
+            procesarUsoReferencia(ctx.referencia(), ctx);
+        }
+
+        // 3) Marcar variables utilizadas en subexpresiones
         if (ctx.expresion() != null) {
             for (compiladorParser.ExpresionContext subExpr : ctx.expresion()) {
                 marcarVariablesUtilizadas(subExpr);
@@ -353,22 +383,56 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         }
     }
 
-    /**
-     * Marca recursivamente las variables como utilizadas en una expresión
-     */
-    private void marcarVariablesUtilizadas(compiladorParser.ExpresionContext expr) {
-        if (expr == null)
-            return;
+    private void procesarUsoReferencia(compiladorParser.ReferenciaContext refCtx,
+                                       ParserRuleContext ctx) {
+        String nombre = refCtx.IDENTIFICADOR().getText();
+        Simbolo simbolo = tablaSimbolos.buscar(nombre);
 
-        if (expr.IDENTIFICADOR() != null && expr.argumentos() == null) {
-            String nombre = expr.IDENTIFICADOR().getText();
+        if (simbolo == null) {
+            agregarError(ErrorSemantico.TipoError.VARIABLE_NO_DECLARADA,
+                    "La variable '" + nombre + "' no está declarada",
+                    ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
+            return;
+        }
+
+        if (simbolo instanceof SimboloVariable) {
+            SimboloVariable variable = (SimboloVariable) simbolo;
+
+            if (!variable.isInicializada() && !variable.esParametro()) {
+                agregarError(ErrorSemantico.TipoError.VARIABLE_NO_INICIALIZADA,
+                        "La variable '" + nombre + "' se usa sin inicializar",
+                        ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
+            }
+
+            variable.setUtilizado(true);
+
+            // Verificar índice si es arreglo
+            if (refCtx.expresion() != null) {
+                String tipoIndice = analizarTipoExpresion(refCtx.expresion());
+                if (!tipoIndice.equals("int")) {
+                    agregarError(ErrorSemantico.TipoError.TIPOS_INCOMPATIBLES,
+                            "El índice del arreglo '" + nombre + "' debe ser de tipo int",
+                            refCtx.expresion().start.getLine(),
+                            refCtx.expresion().start.getCharPositionInLine() + 1);
+                }
+            }
+        }
+    }
+
+    private void marcarVariablesUtilizadas(compiladorParser.ExpresionContext expr) {
+        if (expr == null) return;
+
+        // Caso referencia (variable o arreglo)
+        if (expr.referencia() != null) {
+            compiladorParser.ReferenciaContext ref = expr.referencia();
+            String nombre = ref.IDENTIFICADOR().getText();
             Simbolo simbolo = tablaSimbolos.buscar(nombre);
             if (simbolo instanceof SimboloVariable) {
                 ((SimboloVariable) simbolo).setUtilizado(true);
             }
         }
 
-        // Recursivamente marcar sub-expresiones
+        // Recorrer sub-expresiones
         if (expr.expresion() != null) {
             for (compiladorParser.ExpresionContext subExpr : expr.expresion()) {
                 marcarVariablesUtilizadas(subExpr);
@@ -376,7 +440,7 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         }
     }
 
-    // === MANEJO DE ESTRUCTURAS DE CONTROL ===
+    // ================== BLOQUES Y ESTRUCTURAS DE CONTROL ==================
 
     @Override
     public void enterBloque(compiladorParser.BloqueContext ctx) {
@@ -393,7 +457,6 @@ public class AnalizadorSemantico extends compiladorBaseListener {
     public void enterMientras(compiladorParser.MientrasContext ctx) {
         dentroDeLoop = true;
 
-        // Verificar que la condición sea booleana
         String tipoCondicion = analizarTipoExpresion(ctx.expresion());
         if (!tipoCondicion.equals("bool") && !tipoCondicion.equals("int")) {
             agregarWarning(ErrorSemantico.TipoError.TIPOS_INCOMPATIBLES,
@@ -412,7 +475,7 @@ public class AnalizadorSemantico extends compiladorBaseListener {
     public void enterPara(compiladorParser.ParaContext ctx) {
         dentroDeLoop = true;
 
-        // Verificar la condición si existe
+        // Condición del for (si existe)
         if (ctx.expresion() != null && ctx.expresion().size() > 0) {
             String tipoCondicion = analizarTipoExpresion(ctx.expresion(0));
             if (!tipoCondicion.equals("bool") && !tipoCondicion.equals("int")) {
@@ -431,7 +494,6 @@ public class AnalizadorSemantico extends compiladorBaseListener {
 
     @Override
     public void enterInstruccion(compiladorParser.InstruccionContext ctx) {
-        // Verificar break y continue
         if (ctx.BREAK() != null || ctx.CONTINUE() != null) {
             if (!dentroDeLoop) {
                 String instruccion = ctx.BREAK() != null ? "break" : "continue";
@@ -459,7 +521,6 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         String tipoRetornoFuncion = funcionActual.getTipoRetorno();
 
         if (ctx.expresion() != null) {
-            // Hay una expresión de retorno
             String tipoExpresion = analizarTipoExpresion(ctx.expresion());
 
             if (tipoRetornoFuncion.equals("void")) {
@@ -470,7 +531,6 @@ public class AnalizadorSemantico extends compiladorBaseListener {
                 verificarCompatibilidadTipos(tipoRetornoFuncion, tipoExpresion, ctx.expresion());
             }
         } else {
-            // No hay expresión de retorno
             if (!tipoRetornoFuncion.equals("void")) {
                 agregarError(ErrorSemantico.TipoError.TIPO_RETORNO_INCORRECTO,
                         "La función debe retornar un valor de tipo " + tipoRetornoFuncion,
@@ -479,31 +539,28 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         }
     }
 
-    // === MÉTODOS AUXILIARES ===
+    // ================== AUXILIARES DE TIPOS ==================
 
     private String analizarTipoExpresion(compiladorParser.ExpresionContext ctx) {
         if (ctx == null)
             return "unknown";
 
         // Literales
-        if (ctx.ENTERO() != null)
-            return "int";
-        if (ctx.DECIMAL() != null)
-            return "double";
-        if (ctx.CARACTER() != null)
-            return "char";
-        if (ctx.TRUE() != null || ctx.FALSE() != null)
-            return "bool";
+        if (ctx.ENTERO() != null) return "int";
+        if (ctx.DECIMAL() != null) return "double";
+        if (ctx.CARACTER() != null) return "char";
+        if (ctx.TRUE() != null || ctx.FALSE() != null) return "bool";
 
-        // Variables
-        if (ctx.IDENTIFICADOR() != null && ctx.argumentos() == null) {
-            Simbolo simbolo = tablaSimbolos.buscar(ctx.IDENTIFICADOR().getText());
+        // Variables / arreglos: referencia
+        if (ctx.referencia() != null) {
+            String nombre = ctx.referencia().IDENTIFICADOR().getText();
+            Simbolo simbolo = tablaSimbolos.buscar(nombre);
             if (simbolo instanceof SimboloVariable) {
                 return ((SimboloVariable) simbolo).getTipoDato();
             }
         }
 
-        // Llamadas a función
+        // Llamadas a función: IDENTIFICADOR PA argumentos? PC
         if (ctx.IDENTIFICADOR() != null && ctx.argumentos() != null) {
             SimboloFuncion funcion = tablaSimbolos.buscarFuncion(ctx.IDENTIFICADOR().getText());
             if (funcion != null) {
@@ -516,18 +573,15 @@ public class AnalizadorSemantico extends compiladorBaseListener {
             String tipo1 = analizarTipoExpresion(ctx.expresion(0));
             String tipo2 = analizarTipoExpresion(ctx.expresion(1));
 
-            // Operadores lógicos
             if (ctx.AND() != null || ctx.OR() != null) {
                 return "bool";
             }
 
-            // Operadores de comparación
             if (ctx.EQ() != null || ctx.NEQ() != null || ctx.LT() != null ||
                     ctx.LE() != null || ctx.GT() != null || ctx.GE() != null) {
                 return "bool";
             }
 
-            // Operadores aritméticos
             if (ctx.SUMA() != null || ctx.RESTA() != null || ctx.MULT() != null ||
                     ctx.DIV() != null || ctx.MOD() != null) {
                 return determinarTipoAritmetico(tipo1, tipo2);
@@ -561,12 +615,11 @@ public class AnalizadorSemantico extends compiladorBaseListener {
     }
 
     private void verificarCompatibilidadTipos(String tipoEsperado, String tipoObtenido,
-            compiladorParser.ExpresionContext ctx) {
+                                              compiladorParser.ExpresionContext ctx) {
         if (tipoEsperado.equals(tipoObtenido)) {
-            return; // Tipos iguales, no hay problema
+            return;
         }
 
-        // Conversiones permitidas
         if (tipoEsperado.equals("double") && tipoObtenido.equals("int")) {
             agregarWarning(ErrorSemantico.TipoError.CONVERSION_TIPO_IMPLICITA,
                     "Conversión implícita de int a double",
@@ -581,7 +634,6 @@ public class AnalizadorSemantico extends compiladorBaseListener {
             return;
         }
 
-        // Tipos incompatibles
         if (!tipoObtenido.equals("unknown")) {
             agregarError(ErrorSemantico.TipoError.TIPOS_INCOMPATIBLES,
                     "No se puede asignar " + tipoObtenido + " a " + tipoEsperado,
@@ -590,7 +642,7 @@ public class AnalizadorSemantico extends compiladorBaseListener {
     }
 
     private void verificarLlamadaFuncion(String nombre, compiladorParser.ArgumentosContext argumentos,
-            compiladorParser.ExpresionContext ctx) {
+                                         compiladorParser.ExpresionContext ctx) {
         SimboloFuncion funcion = tablaSimbolos.buscarFuncion(nombre);
 
         if (funcion == null) {
@@ -602,7 +654,6 @@ public class AnalizadorSemantico extends compiladorBaseListener {
 
         funcion.setUtilizado(true);
 
-        // Verificar número de argumentos
         List<String> tiposArgumentos = new ArrayList<>();
         if (argumentos != null && argumentos.expresion() != null) {
             for (compiladorParser.ExpresionContext expr : argumentos.expresion()) {
@@ -622,25 +673,22 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         }
     }
 
+    // ================== VERIFICACIONES DE VARIABLES ==================
+
     private void verificarVariablesNoUtilizadas() {
         for (SimboloVariable variable : tablaSimbolos.getVariablesAmbitoActual()) {
             if (!variable.isUtilizado()) {
-                // No reportar warnings para variables que se declaran solo para cálculos
-                // intermedios
-                // o para variables de un solo carácter comúnmente usadas como temporales
                 String nombre = variable.getNombre();
                 boolean esVariableTemporal = nombre.equals("temp") || nombre.equals("i") || nombre.equals("j") ||
                         nombre.equals("k") || nombre.length() == 1;
 
                 if (variable.esParametro()) {
-                    // Solo reportar parámetros no utilizados si no son obviamente de prueba
                     if (!esVariableTemporal) {
                         agregarWarning(ErrorSemantico.TipoError.PARAMETRO_NO_UTILIZADO,
                                 "El parámetro '" + variable.getNombre() + "' no se utiliza",
                                 variable.getLinea(), variable.getColumna());
                     }
                 } else {
-                    // Para variables locales, ser más selectivo
                     if (!esVariableTemporal && !nombre.startsWith("resultado") && !nombre.startsWith("suma")
                             && !nombre.startsWith("resta") && !nombre.startsWith("mult") && !nombre.startsWith("div")
                             && !nombre.startsWith("mod") && !nombre.startsWith("comp") && !nombre.startsWith("logico")
@@ -656,14 +704,12 @@ public class AnalizadorSemantico extends compiladorBaseListener {
     }
 
     private void verificacionesFinals() {
-        // Verificar que existe función main
         if (!tablaSimbolos.existeFuncionMain()) {
             agregarError(ErrorSemantico.TipoError.FUNCION_MAIN_FALTANTE,
                     "El programa debe tener una función main",
                     0, 0);
         }
 
-        // Verificar funciones no utilizadas
         for (SimboloFuncion funcion : tablaSimbolos.getTodasLasFunciones()) {
             if (!funcion.isUtilizado() && !funcion.esMain()) {
                 agregarWarning(ErrorSemantico.TipoError.FUNCION_NO_UTILIZADA,
@@ -673,6 +719,8 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         }
     }
 
+    // ================== MANEJO DE ERRORES/WARNINGS ==================
+
     private void agregarError(ErrorSemantico.TipoError tipo, String mensaje, int linea, int columna) {
         errores.add(new ErrorSemantico(tipo, mensaje, linea, columna));
     }
@@ -681,7 +729,8 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         warnings.add(new ErrorSemantico(tipo, mensaje, linea, columna));
     }
 
-    // Getters para acceso externo
+    // ================== GETTERS ==================
+
     public TablaSimbolos getTablaSimbolos() {
         return tablaSimbolos;
     }

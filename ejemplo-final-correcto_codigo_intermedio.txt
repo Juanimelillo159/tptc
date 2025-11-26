@@ -1,0 +1,52 @@
+// Código de tres direcciones generado
+PROGRAMA_INICIO:
+// Declaración de variables globales
+DECLARE contadorGlobal int
+DECLARE valorPi double
+DECLARE inicial char
+DECLARE activo bool
+func_sumar:
+PARAM a int
+PARAM b int
+DECLARE resultado int
+t0 = a + b
+resultado = t0
+t1 = contadorGlobal + 1
+contadorGlobal = t1
+return resultado
+func_main:
+DECLARE estado int
+DECLARE temp int
+DECLARE numeros[3] int
+contadorGlobal = 0
+valorPi = 3.14
+inicial = 'M'
+numeros[0] = 10
+numeros[1] = 20
+numeros[2] = 30
+t2 = numeros[0] + numeros[1]
+temp = t2
+t3 = temp * 2
+temp = t3
+t4 = temp / 3
+temp = t4
+t5 = temp % 5
+temp = t5
+CALL func_sumar, temp, 5
+t6 = RETURN_VALUE
+estado = t6
+contadorGlobal = estado
+valorPi = temp
+inicial = 'X'
+t7 = estado > 0
+tt8 = t7
+if t8 goto THEN_0
+goto END_IF_0
+THEN_0:
+DECLARE auxiliar int
+t9 = estado + 10
+auxiliar = t9
+estado = auxiliar
+END_IF_0:
+return estado
+PROGRAMA_FIN:

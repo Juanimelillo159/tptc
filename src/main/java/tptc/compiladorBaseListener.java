@@ -1,4 +1,4 @@
-// Generated from d:/Desktop/informatica 5 año/Tecnicas de compilación/TC Final/tptc-Codigo-Intermedio/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from c:/xampp/htdocs/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 
@@ -91,6 +91,42 @@ public class compiladorBaseListener implements compiladorListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDeclaracion_global(compiladorParser.Declaracion_globalContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDeclaracion_global(compiladorParser.Declaracion_globalContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDeclaracion_variable(compiladorParser.Declaracion_variableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDeclaracion_variable(compiladorParser.Declaracion_variableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDeclarador(compiladorParser.DeclaradorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDeclarador(compiladorParser.DeclaradorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBloque(compiladorParser.BloqueContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -110,18 +146,6 @@ public class compiladorBaseListener implements compiladorListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitInstruccion(compiladorParser.InstruccionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDeclaracion_variable(compiladorParser.Declaracion_variableContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDeclaracion_variable(compiladorParser.Declaracion_variableContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -182,6 +206,18 @@ public class compiladorBaseListener implements compiladorListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAsignacion(compiladorParser.AsignacionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterReferencia(compiladorParser.ReferenciaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitReferencia(compiladorParser.ReferenciaContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -1,4 +1,4 @@
-// Generated from d:/Desktop/informatica 5 año/Tecnicas de compilación/TC Final/tptc-Codigo-Intermedio/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from c:/xampp/htdocs/tptc/src/main/java/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 
@@ -49,6 +49,24 @@ public interface compiladorVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTipo(compiladorParser.TipoContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link compiladorParser#declaracion_global}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDeclaracion_global(compiladorParser.Declaracion_globalContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link compiladorParser#declaracion_variable}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDeclaracion_variable(compiladorParser.Declaracion_variableContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link compiladorParser#declarador}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDeclarador(compiladorParser.DeclaradorContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link compiladorParser#bloque}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -60,12 +78,6 @@ public interface compiladorVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitInstruccion(compiladorParser.InstruccionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link compiladorParser#declaracion_variable}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDeclaracion_variable(compiladorParser.Declaracion_variableContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link compiladorParser#si}.
 	 * @param ctx the parse tree
@@ -96,6 +108,12 @@ public interface compiladorVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAsignacion(compiladorParser.AsignacionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link compiladorParser#referencia}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReferencia(compiladorParser.ReferenciaContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link compiladorParser#asignacion_simple}.
 	 * @param ctx the parse tree

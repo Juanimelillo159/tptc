@@ -1,12 +1,11 @@
 package tptc;
 
 import java.io.*;
-import java.util.List;
-
+import java.util.*;
 
 /**
  * Punto de entrada principal del compilador C++ con análisis léxico, sintáctico
- * y semántico
+ * semántico, generación de código intermedio y optimización.
  */
 public class App {
 
@@ -30,7 +29,7 @@ public class App {
     private static final boolean DETENER_EN_ERRORES_SINTACTICOS = true;
     private static final boolean MOSTRAR_WARNINGS = true;
 
-    // Configuración Codigo Intermedio
+    // Configuración Código Intermedio
     private static final boolean GENERAR_CODIGO_INTERMEDIO = true;
     private static final boolean MOSTRAR_CODIGO_INTERMEDIO = true;
 
@@ -38,8 +37,7 @@ public class App {
         System.out.println("╔══════════════════════════════════════════════════════════════╗");
         System.out.println("║            COMPILADOR C++ COMPLETO - TPTC v2.0              ║");
         System.out.println("║     Análisis Léxico, Sintáctico y Semántico Integrado      ║");
-        System.out.println("║            con Tabla de Símbolos y Detección                ║");
-        System.out.println("║               de Errores Críticos y Warnings                ║");
+        System.out.println("║      con Código Intermedio, Optimización y Símbolos        ║");
         System.out.println("╚══════════════════════════════════════════════════════════════╝");
         System.out.println();
 
@@ -53,14 +51,14 @@ public class App {
 
             boolean exitoTotal = true;
 
-            // Variables para almacenar resultados
+            // Resultados por fase
             AnalizadorLexico.ResultadoAnalisis resultadoLexico = null;
             AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico = null;
             AnalizadorSemantico.ResultadoAnalisisSemantico resultadoSemantico = null;
 
-            // === FASE 1: ANÁLISIS LÉXICO ===
+            // === 1. ANÁLISIS LÉXICO ===
             if (EJECUTAR_ANALISIS_LEXICO) {
-                System.out.println("🔍 INICIANDO ANÁLISIS LÉXICO...");
+                System.out.println("=== 1. ANÁLISIS LÉXICO ===");
                 System.out.println("═".repeat(60));
 
                 resultadoLexico = AnalizadorLexico.analizarCodigo(contenidoArchivo);
@@ -73,8 +71,7 @@ public class App {
 
                 if (!resultadoLexico.fueExitoso()) {
                     exitoTotal = false;
-                    System.out
-                            .println("⚠️  Se encontraron " + resultadoLexico.getTokensConError() + " errores léxicos.");
+                    System.out.println("⚠️  Se encontraron " + resultadoLexico.getTokensConError() + " errores léxicos.");
 
                     if (DETENER_EN_ERRORES_LEXICOS) {
                         System.out.println("🛑 DETENIENDO COMPILACIÓN por errores léxicos.");
@@ -88,9 +85,9 @@ public class App {
                 System.out.println();
             }
 
-            // === FASE 2: ANÁLISIS SINTÁCTICO ===
+            // === 2. ANÁLISIS SINTÁCTICO ===
             if (EJECUTAR_ANALISIS_SINTACTICO) {
-                System.out.println("🌳 INICIANDO ANÁLISIS SINTÁCTICO...");
+                System.out.println("=== 2. ANÁLISIS SINTÁCTICO ===");
                 System.out.println("═".repeat(60));
 
                 resultadoSintactico = AnalizadorSintactico.analizarCodigo(contenidoArchivo);
@@ -118,9 +115,13 @@ public class App {
                 System.out.println();
             }
 
-            // === FASE 3: ANÁLISIS SEMÁNTICO ===
+            // === 3. (Opcional) VISUALIZACIÓN DEL AST ===
+            // Si más adelante querés abrir una ventana gráfica del AST, este es el lugar.
+            // Por ahora solo lo mencionamos para mantener el mismo flujo conceptual.
+
+            // === 4. ANÁLISIS SEMÁNTICO ===
             if (EJECUTAR_ANALISIS_SEMANTICO && resultadoSintactico != null && resultadoSintactico.fueExitoso()) {
-                System.out.println("🧠 INICIANDO ANÁLISIS SEMÁNTICO...");
+                System.out.println("=== 4. ANÁLISIS SEMÁNTICO ===");
                 System.out.println("═".repeat(60));
 
                 resultadoSemantico = AnalizadorSemantico.analizar(resultadoSintactico.getArbolSintactico());
@@ -143,7 +144,7 @@ public class App {
                                 + " warnings (no críticos).");
                     }
                 }
-                
+                System.out.println();
 
             } else if (EJECUTAR_ANALISIS_SEMANTICO) {
                 System.out.println("⏸️  ANÁLISIS SEMÁNTICO OMITIDO");
@@ -151,54 +152,57 @@ public class App {
                 System.out.println();
             }
 
-            // === FASE 4: GENERACIÓN DE CÓDIGO INTERMEDIO ===
-            if (GENERAR_CODIGO_INTERMEDIO && resultadoSemantico != null && resultadoSemantico.fueExitoso()) {
-                System.out.println("🔄 GENERANDO CÓDIGO INTERMEDIO...");
+            // === 5 y 6: CÓDIGO INTERMEDIO + OPTIMIZACIÓN ===
+            if (GENERAR_CODIGO_INTERMEDIO
+                    && resultadoSintactico != null && resultadoSintactico.fueExitoso()
+                    && resultadoSemantico != null && resultadoSemantico.fueExitoso()) {
+
+                String baseNombre = obtenerNombreBase(ARCHIVO_A_ANALIZAR);
+
+                // === 5. GENERACIÓN DE CÓDIGO INTERMEDIO ===
+                System.out.println("=== 5. GENERACIÓN DE CÓDIGO INTERMEDIO ===");
+                System.out.println("   🎯 Iniciando recorrido del AST con GeneradorCodigoIntermedio...");
                 System.out.println("═".repeat(60));
 
-                try {
-                    // ✅ USAR EL CÓDIGO YA OPTIMIZADO del análisis sintáctico
-                    List<String> codigoIntermedio = resultadoSintactico.getCodigoIntermedio();
+                GeneradorCodigoIntermedio generador = new GeneradorCodigoIntermedio();
+                generador.visit(resultadoSintactico.getArbolSintactico());
+                List<String> codigoIntermedio = generador.getCodigoIntermedio();
 
-                    if (MOSTRAR_CODIGO_INTERMEDIO && !codigoIntermedio.isEmpty()) {
-                        System.out.println("╔══════════════════════════════════════════════════════════════╗");
-                        System.out.println("║                CÓDIGO INTERMEDIO GENERADO                  ║");
-                        System.out.println("╚══════════════════════════════════════════════════════════════╝");
-            
-                        for (int i = 0; i < codigoIntermedio.size(); i++) {
-                            System.out.printf("%3d │ %s%n", i + 1, codigoIntermedio.get(i));
-                        }
-            
-                        // Mostrar estadísticas
-                        System.out.println("\n📊 RESUMEN CÓDIGO INTERMEDIO:");
-                        System.out.printf("   Líneas generadas: %d\n", codigoIntermedio.size());
-            
-                        // Contar temporales usadas
-                        long temporales = codigoIntermedio.stream()
-                            .filter(linea -> linea.matches("^t\\d+\\s*=.*"))
-                            .count();
-                        System.out.printf("   Temporales usadas: %d\n", temporales);
-            
-                        // Contar labels generados  
-                        long labels = codigoIntermedio.stream()
-                            .filter(linea -> linea.matches("^L\\d+.*"))
-                            .count();
-                        System.out.printf("   Labels generados: %d\n", labels);
-            
-                    } else if (codigoIntermedio.isEmpty()) {
-                        System.out.println("⚠️  No se generó código intermedio (lista vacía)");
-                    }
-
-                } catch (Exception e) {
-                    System.out.println("❌ Error al mostrar código intermedio: " + e.getMessage());
-                    e.printStackTrace();
+                if (MOSTRAR_CODIGO_INTERMEDIO) {
+                    System.out.println("   📝 Código de tres direcciones generado:\n");
+                    generador.mostrarCodigo();
                 }
+
+                String archivoIntermedio = baseNombre + "_codigo_intermedio.txt";
+                generarArchivoTexto(archivoIntermedio, codigoIntermedio);
+                System.out.println("\n✅ Código intermedio guardado en: " + archivoIntermedio);
+                System.out.println();
+
+                // === 6. OPTIMIZACIÓN DE CÓDIGO ===
+                System.out.println("=== 6. OPTIMIZACIÓN DE CÓDIGO ===");
+                System.out.println("   🔧 Aplicando optimizaciones al código intermedio...");
+                System.out.println("═".repeat(60));
+
+                Optimizador optimizador = new Optimizador(codigoIntermedio);
+                List<String> codigoOptimizado = optimizador.optimizar();
+
+                optimizador.mostrarReporteOptimizacion();
+                System.out.println();
+                System.out.println("   📝 Código optimizado:\n");
+                optimizador.mostrarCodigoOptimizado();
+
+                String archivoOptimizado = baseNombre + "_codigo_optimizado.txt";
+                generarArchivoTexto(archivoOptimizado, codigoOptimizado);
+                System.out.println("\n✅ Código optimizado guardado en: " + archivoOptimizado);
+                System.out.println();
+
             } else if (GENERAR_CODIGO_INTERMEDIO) {
-                System.out.println("⏸️  GENERACIÓN DE CÓDIGO INTERMEDIO OMITIDA");
+                System.out.println("⏸️  GENERACIÓN DE CÓDIGO INTERMEDIO/OPTIMIZACIÓN OMITIDA");
                 System.out.println("   Motivo: Errores en fases anteriores impiden la generación");
+                System.out.println();
             }
 
-            // === RESUMEN FINAL ===
+            // === 7. RESUMEN FINAL ===
             mostrarResumenFinal(resultadoLexico, resultadoSintactico, resultadoSemantico, exitoTotal);
 
             // === EXPORTAR RESULTADOS (OPCIONAL) ===
@@ -206,13 +210,14 @@ public class App {
                 exportarResultados(resultadoLexico, resultadoSintactico, resultadoSemantico);
             }
 
-            // Código de salida
             System.exit(exitoTotal ? 0 : 1);
 
         } catch (Exception e) {
             manejarErrorGeneral(e);
         }
     }
+
+    // ========================= HELPERS =========================
 
     /**
      * Lee el archivo fuente
@@ -243,6 +248,39 @@ public class App {
         System.out.println("═".repeat(60));
         System.out.println("📊 Archivo: " + ARCHIVO_A_ANALIZAR + " (" + lineas.length + " líneas)");
         System.out.println();
+    }
+
+    /**
+     * Nombre base sin ruta ni extensión, en minúsculas.
+     * Ej: "input/ejemplo_correcto.cpp" -> "ejemplo_correcto"
+     */
+    private static String obtenerNombreBase(String ruta) {
+        String nombre = ruta;
+
+        int slash = Math.max(nombre.lastIndexOf('/'), nombre.lastIndexOf('\\'));
+        if (slash >= 0) {
+            nombre = nombre.substring(slash + 1);
+        }
+
+        int punto = nombre.lastIndexOf('.');
+        if (punto > 0) {
+            nombre = nombre.substring(0, punto);
+        }
+
+        return nombre.toLowerCase();
+    }
+
+    /**
+     * Genera un archivo de texto simple con una lista de líneas.
+     */
+    private static void generarArchivoTexto(String ruta, List<String> lineas) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(ruta))) {
+            for (String linea : lineas) {
+                writer.println(linea);
+            }
+        } catch (IOException e) {
+            System.err.println("❌ Error al guardar archivo " + ruta + ": " + e.getMessage());
+        }
     }
 
     /**
@@ -316,7 +354,6 @@ public class App {
         } else {
             System.out.println("💥 COMPILACIÓN FALLIDA");
 
-            // Diagnosticar dónde falló
             if (resultadoLexico != null && !resultadoLexico.fueExitoso()) {
                 System.out.println("❌ Errores léxicos detectados");
             }
@@ -328,7 +365,6 @@ public class App {
             }
         }
 
-        // Mostrar información de tabla de símbolos si está disponible
         if (resultadoSemantico != null && MOSTRAR_TABLA_SIMBOLOS) {
             var stats = resultadoSemantico.getTablaSimbolos().getEstadisticas();
             System.out.println();
@@ -349,8 +385,7 @@ public class App {
             AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico,
             AnalizadorSemantico.ResultadoAnalisisSemantico resultadoSemantico) {
         try {
-            // Crear directorio de reportes si no existe
-            new java.io.File("reportes").mkdirs();
+            new File("reportes").mkdirs();
 
             String baseNombre = ARCHIVO_A_ANALIZAR.replace(".txt", "").replace("/", "_");
             String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
@@ -370,7 +405,6 @@ public class App {
                 ReportadorSemantico.exportarReporte(ARCHIVO_A_ANALIZAR, resultadoSemantico, archivoSemantico);
             }
 
-            // Exportar reporte consolidado
             String archivoConsolidado = String.format("reportes/%s_completo_%s.txt", baseNombre, timestamp);
             exportarReporteConsolidado(ARCHIVO_A_ANALIZAR, resultadoLexico, resultadoSintactico,
                     resultadoSemantico, archivoConsolidado);
@@ -449,10 +483,6 @@ public class App {
             writer.println("=".repeat(70));
             writer.println();
 
-            // Resumen ejecutivo
-            writer.println("RESUMEN EJECUTIVO:");
-            writer.println("-".repeat(30));
-
             boolean exitoTotal = true;
             if (resultadoLexico != null) {
                 exitoTotal &= resultadoLexico.fueExitoso();
@@ -474,7 +504,6 @@ public class App {
             writer.println("ESTADO GENERAL: " + (exitoTotal ? "✓ COMPILACIÓN EXITOSA" : "✗ COMPILACIÓN FALLIDA"));
             writer.println();
 
-            // Detalles por fase
             if (resultadoLexico != null) {
                 writer.println("=".repeat(70));
                 writer.println("FASE 1: ANÁLISIS LÉXICO");
@@ -511,11 +540,9 @@ public class App {
                 writer.printf("Máximo nivel de ámbito: %d%n", stats.get("nivelMaximoAmbito"));
                 writer.println();
 
-                // Tabla de símbolos resumida
                 writer.println("TABLA DE SÍMBOLOS (RESUMEN):");
                 writer.println("-".repeat(40));
 
-                // Funciones
                 var funciones = resultadoSemantico.getTablaSimbolos().getTodasLasFunciones();
                 if (!funciones.isEmpty()) {
                     writer.println("Funciones:");
@@ -525,12 +552,11 @@ public class App {
                     writer.println();
                 }
 
-                // Variables (solo las más relevantes)
                 var variables = resultadoSemantico.getTablaSimbolos().getTodasLasVariables();
                 if (!variables.isEmpty()) {
                     writer.println("Variables:");
                     for (var variable : variables) {
-                        if (!variable.esParametro()) { // Solo variables, no parámetros
+                        if (!variable.esParametro()) {
                             String estado = variable.isUtilizado() ? "usada" : "no usada";
                             writer.printf("  - %s %s (línea %d) - %s%n",
                                     variable.getTipoDato(), variable.getNombre(),
@@ -541,7 +567,6 @@ public class App {
                 }
             }
 
-            // Errores y warnings consolidados
             boolean hayProblemas = false;
 
             if (resultadoSemantico != null && !resultadoSemantico.getErrores().isEmpty()) {
@@ -619,7 +644,6 @@ public class App {
         System.err.println("   • Verifica que todas las clases estén compiladas");
         System.err.println("   • Asegúrate de que la gramática ANTLR esté actualizada");
         System.err.println("   • Revisa que el archivo de entrada tenga sintaxis C++ válida");
-
         System.err.println();
         e.printStackTrace();
         System.exit(3);

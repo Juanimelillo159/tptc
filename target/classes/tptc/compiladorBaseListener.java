@@ -1,4 +1,4 @@
-// Generated from c:/Users/juani/Desktop/tptc/target/classes/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from c:/xampp/htdocs/tptc/target/classes/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 
@@ -182,6 +182,30 @@ public class compiladorBaseListener implements compiladorListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAsignacion(compiladorParser.AsignacionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAsignacion_simple(compiladorParser.Asignacion_simpleContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAsignacion_simple(compiladorParser.Asignacion_simpleContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAsignacion_suma(compiladorParser.Asignacion_sumaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAsignacion_suma(compiladorParser.Asignacion_sumaContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

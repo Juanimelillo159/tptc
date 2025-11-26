@@ -1,4 +1,4 @@
-// Generated from c:/Users/juani/Desktop/tptc/target/classes/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from c:/xampp/htdocs/tptc/target/classes/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 
@@ -149,6 +149,26 @@ public interface compiladorListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAsignacion(compiladorParser.AsignacionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link compiladorParser#asignacion_simple}.
+	 * @param ctx the parse tree
+	 */
+	void enterAsignacion_simple(compiladorParser.Asignacion_simpleContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link compiladorParser#asignacion_simple}.
+	 * @param ctx the parse tree
+	 */
+	void exitAsignacion_simple(compiladorParser.Asignacion_simpleContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link compiladorParser#asignacion_suma}.
+	 * @param ctx the parse tree
+	 */
+	void enterAsignacion_suma(compiladorParser.Asignacion_sumaContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link compiladorParser#asignacion_suma}.
+	 * @param ctx the parse tree
+	 */
+	void exitAsignacion_suma(compiladorParser.Asignacion_sumaContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link compiladorParser#expresion}.
 	 * @param ctx the parse tree

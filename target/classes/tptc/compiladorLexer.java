@@ -1,4 +1,4 @@
-// Generated from c:/Users/juani/Desktop/tptc/target/classes/tptc/compilador.g4 by ANTLR 4.13.1
+// Generated from c:/xampp/htdocs/tptc/target/classes/tptc/compilador.g4 by ANTLR 4.13.1
 
 package tptc;
 

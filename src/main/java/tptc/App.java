@@ -11,7 +11,7 @@ import java.util.List;
 public class App {
 
     // CONFIGURACIÓN PRINCIPAL
-    private static final String ARCHIVO_A_ANALIZAR = "input/Prueba-Optimizador.txt";
+    private static final String ARCHIVO_A_ANALIZAR = "input/Ejemplo-Final-Correcto.txt";
 
     // Configuración de análisis
     private static final boolean EJECUTAR_ANALISIS_LEXICO = true;

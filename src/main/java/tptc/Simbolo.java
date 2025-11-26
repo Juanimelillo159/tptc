@@ -10,6 +10,7 @@ public abstract class Simbolo {
     protected int columna;
     protected boolean utilizado;
     protected boolean inicializado;
+    protected String ambito;
 
     public enum TipoSimbolo {
         VARIABLE,
@@ -17,13 +18,18 @@ public abstract class Simbolo {
         PARAMETRO
     }
 
-    public Simbolo(String nombre, TipoSimbolo tipo, int linea, int columna) {
+    public Simbolo(String nombre, TipoSimbolo tipo, int linea, int columna, String ambito) {
         this.nombre = nombre;
         this.tipo = tipo;
         this.linea = linea;
         this.columna = columna;
         this.utilizado = false;
         this.inicializado = false;
+        this.ambito = ambito == null ? "global" : ambito;
+    }
+
+    public Simbolo(String nombre, TipoSimbolo tipo, int linea, int columna) {
+        this(nombre, tipo, linea, columna, "global");
     }
 
     // Getters y setters
@@ -41,6 +47,14 @@ public abstract class Simbolo {
 
     public int getColumna() {
         return columna;
+    }
+
+    public String getAmbito() {
+        return ambito;
+    }
+
+    public void setAmbito(String ambito) {
+        this.ambito = ambito;
     }
 
     public boolean isUtilizado() {

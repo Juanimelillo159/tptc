@@ -152,18 +152,19 @@ public class AnalizadorSemantico extends compiladorBaseListener {
 
         @Override
         public void enterParametro(compiladorParser.ParametroContext ctx) {
-            if (funcionActual != null) {
-                String nombre = ctx.IDENTIFICADOR().getText();
-                String tipo = ctx.tipo().getText();
+                if (funcionActual != null) {
+                    String nombre = ctx.IDENTIFICADOR().getText();
+                    String tipo = ctx.tipo().getText();
 
-                SimboloVariable parametro = new SimboloVariable(nombre, tipo,
-                        ctx.start.getLine(),
-                        ctx.start.getCharPositionInLine() + 1,
-                        true);
-                funcionActual.agregarParametro(parametro);
+                    SimboloVariable parametro = new SimboloVariable(nombre, tipo,
+                            ctx.start.getLine(),
+                            ctx.start.getCharPositionInLine() + 1,
+                            true,
+                            funcionActual.getNombre());
+                    funcionActual.agregarParametro(parametro);
+                }
             }
         }
-    }
 
     // === MANEJO DE FUNCIONES ===
 
@@ -246,7 +247,8 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         SimboloVariable parametro = new SimboloVariable(nombre, tipo,
                 ctx.start.getLine(),
                 ctx.start.getCharPositionInLine() + 1,
-                true); // es parámetro
+                true,
+                tablaSimbolos.getNombreAmbitoActual()); // es parámetro
 
         if (!tablaSimbolos.insertar(parametro)) {
             agregarError(ErrorSemantico.TipoError.REDEFINICION_VARIABLE,
@@ -263,9 +265,13 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         String nombre = ctx.IDENTIFICADOR().getText();
         String tipo = ctx.tipo().getText();
 
+        String ambito = tablaSimbolos.getNombreAmbitoActual();
+
         SimboloVariable variable = new SimboloVariable(nombre, tipo,
                 ctx.start.getLine(),
-                ctx.start.getCharPositionInLine() + 1);
+                ctx.start.getCharPositionInLine() + 1,
+                false,
+                ambito);
 
         if (!tablaSimbolos.insertar(variable)) {
             agregarError(ErrorSemantico.TipoError.REDEFINICION_VARIABLE,

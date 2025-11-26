@@ -13,7 +13,7 @@ public class SimboloFuncion extends Simbolo {
     private boolean esMain;
 
     public SimboloFuncion(String nombre, String tipoRetorno, int linea, int columna) {
-        super(nombre, TipoSimbolo.FUNCION, linea, columna);
+        super(nombre, TipoSimbolo.FUNCION, linea, columna, "global");
         this.tipoRetorno = tipoRetorno;
         this.parametros = new ArrayList<>();
         this.tieneReturn = false;

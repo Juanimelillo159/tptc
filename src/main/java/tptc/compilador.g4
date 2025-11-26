@@ -12,6 +12,8 @@ PA: '(';
 PC: ')';
 LA: '{';
 LC: '}';
+CA: '[';
+CC: ']';
 PyC: ';';
 IGU: '=';
 COM: ',';
@@ -83,7 +85,12 @@ COMENTARIO_BLOQUE: '/*' .*? '*/' -> skip;
 WS: [ \t\n\r]+ -> skip;
 
 // ============ REGLAS DEL PARSER (CORREGIDAS) ============
-programa: definicion_funcion* definicion_funcion_main EOF;
+programa: miembro* EOF;
+
+miembro:
+        declaracion_variable PyC       #miembroDeclaracionGlobal
+        | definicion_funcion
+        | definicion_funcion_main;
 
 definicion_funcion_main: INT 'main' PA PC bloque;
 
@@ -108,25 +115,32 @@ instruccion:
 	| CONTINUE PyC
 	| bloque;
 
-declaracion_variable: tipo IDENTIFICADOR (IGU expresion)?;
+declaracion_variable:
+        tipo IDENTIFICADOR dimension_arreglo? (IGU expresion)?;
+
+dimension_arreglo: CA ENTERO CC;
 
 si: IF PA expresion PC instruccion (ELSE instruccion)?;
 
 mientras: WHILE PA expresion PC instruccion;
 
 para:
-	FOR PA (declaracion_variable | asignacion_simple)? PyC expresion? PyC (
-		asignacion_simple
-		| expresion
-	)? PC instruccion;
+        FOR PA (declaracion_variable | asignacion_simple | asignacion_arreglo)?
+        PyC expresion?
+        PyC (
+                asignacion_simple
+                | asignacion_arreglo
+                | expresion
+        )? PC instruccion;
 
 retorno: RETURN expresion?;
 
 // CORRECCIÓN: Definir una regla base para asignacion
-asignacion: asignacion_simple | asignacion_suma;
+asignacion: asignacion_simple | asignacion_suma | asignacion_arreglo;
 
 asignacion_simple: IDENTIFICADOR IGU expresion;
 asignacion_suma: IDENTIFICADOR SUMA_ASIG expresion;
+asignacion_arreglo: IDENTIFICADOR CA expresion CC IGU expresion;
 
 expresion:
 	expresion OR expresion
@@ -135,8 +149,9 @@ expresion:
 	| expresion (SUMA | RESTA) expresion
 	| expresion (MULT | DIV | MOD) expresion
 	| (SUMA | RESTA | NOT) expresion
-	| IDENTIFICADOR PA argumentos? PC
-	| IDENTIFICADOR
+        | IDENTIFICADOR PA argumentos? PC
+        | IDENTIFICADOR CA expresion CC
+        | IDENTIFICADOR
 	| ENTERO
 	| DECIMAL
 	| CARACTER

@@ -41,6 +41,7 @@ public class Optimizador {
      */
     public List<String> optimizar() {
         if (codigoOriginal.isEmpty()) {
+            reporteOptimizaciones.add("⚠️  No hay código para optimizar");
             return codigoOptimizado;
         }
 
@@ -64,6 +65,10 @@ public class Optimizador {
             String.format("%.1f%%", ((1 - (double)codigoOptimizado.size() / codigoOriginal.size())) * 100));
 
         return codigoOptimizado;
+    }
+
+    public List<String> getReporteOptimizaciones() {
+        return new ArrayList<>(reporteOptimizaciones);
     }
 
     /**

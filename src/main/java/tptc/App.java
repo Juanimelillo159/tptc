@@ -26,8 +26,8 @@ public class App {
     private static final boolean MOSTRAR_TABLA_SIMBOLOS = true;
 
     // CONFIGURACIÓN SEMÁNTICA
-    private static final boolean DETENER_EN_ERRORES_LEXICOS = true;
-    private static final boolean DETENER_EN_ERRORES_SINTACTICOS = true;
+    private static final boolean DETENER_EN_ERRORES_LEXICOS = false;
+    private static final boolean DETENER_EN_ERRORES_SINTACTICOS = false;
     private static final boolean MOSTRAR_WARNINGS = true;
 
     // Configuración Codigo Intermedio
@@ -76,12 +76,7 @@ public class App {
                     System.out
                             .println("⚠️  Se encontraron " + resultadoLexico.getTokensConError() + " errores léxicos.");
 
-                    if (DETENER_EN_ERRORES_LEXICOS) {
-                        System.out.println("🛑 DETENIENDO COMPILACIÓN por errores léxicos.");
-                        mostrarResumenFinal(resultadoLexico, null, null, false);
-                        System.exit(1);
-                        return;
-                    }
+                    // No se detiene la compilación para permitir reportes completos
                 } else {
                     System.out.println("✅ Análisis léxico completado sin errores. Procediendo...");
                 }
@@ -106,12 +101,7 @@ public class App {
                     System.out.println(
                             "⚠️  Se encontraron " + resultadoSintactico.getErrores().size() + " errores sintácticos.");
 
-                    if (DETENER_EN_ERRORES_SINTACTICOS) {
-                        System.out.println("🛑 DETENIENDO COMPILACIÓN por errores sintácticos.");
-                        mostrarResumenFinal(resultadoLexico, resultadoSintactico, null, false);
-                        System.exit(1);
-                        return;
-                    }
+                    // Continuar ejecución para mostrar tabla de símbolos y reportes
                 } else {
                     System.out.println("✅ Análisis sintáctico completado sin errores. Procediendo...");
                 }
@@ -119,11 +109,15 @@ public class App {
             }
 
             // === FASE 3: ANÁLISIS SEMÁNTICO ===
-            if (EJECUTAR_ANALISIS_SEMANTICO && resultadoSintactico != null && resultadoSintactico.fueExitoso()) {
+            if (EJECUTAR_ANALISIS_SEMANTICO && resultadoSintactico != null) {
                 System.out.println("🧠 INICIANDO ANÁLISIS SEMÁNTICO...");
                 System.out.println("═".repeat(60));
 
-                resultadoSemantico = AnalizadorSemantico.analizar(resultadoSintactico.getArbolSintactico());
+                try {
+                    resultadoSemantico = AnalizadorSemantico.analizar(resultadoSintactico.getArbolSintactico());
+                } catch (Exception e) {
+                    System.out.println("⚠️  El análisis semántico no pudo completarse: " + e.getMessage());
+                }
 
                 if (MODO_DETALLADO) {
                     ReportadorSemantico.mostrarReporteCompleto(ARCHIVO_A_ANALIZAR, resultadoSemantico);
@@ -179,12 +173,14 @@ public class App {
                             .count();
                         System.out.printf("   Temporales usadas: %d\n", temporales);
             
-                        // Contar labels generados  
+                        // Contar labels generados
                         long labels = codigoIntermedio.stream()
                             .filter(linea -> linea.matches("^L\\d+.*"))
                             .count();
                         System.out.printf("   Labels generados: %d\n", labels);
-            
+
+                        exportarCodigoIntermedio(resultadoSintactico);
+
                     } else if (codigoIntermedio.isEmpty()) {
                         System.out.println("⚠️  No se generó código intermedio (lista vacía)");
                     }
@@ -425,6 +421,38 @@ public class App {
 
         } catch (java.io.IOException e) {
             System.err.println("❌ Error al exportar reporte léxico: " + e.getMessage());
+        }
+    }
+
+    private static void exportarCodigoIntermedio(AnalizadorSintactico.ResultadoAnalisisSintactico resultadoSintactico) {
+        if (resultadoSintactico == null) {
+            return;
+        }
+
+        try {
+            new java.io.File("reportes").mkdirs();
+            String baseNombre = ARCHIVO_A_ANALIZAR.replace(".txt", "").replace("/", "_");
+            String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+
+            String archivoCodigo = String.format("reportes/%s_codigo_intermedio_%s.txt", baseNombre, timestamp);
+            try (java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.FileWriter(archivoCodigo))) {
+                writer.println("CÓDIGO INTERMEDIO OPTIMIZADO");
+                int linea = 1;
+                for (String instruccion : resultadoSintactico.getCodigoIntermedio()) {
+                    writer.printf("%03d | %s%n", linea++, instruccion);
+                }
+            }
+
+            String archivoOpt = String.format("reportes/%s_optimizacion_%s.txt", baseNombre, timestamp);
+            try (java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.FileWriter(archivoOpt))) {
+                writer.println("REPORTE DE OPTIMIZACIÓN");
+                for (String linea : resultadoSintactico.getReporteOptimizacion()) {
+                    writer.println(linea);
+                }
+            }
+            System.out.println("💾 Código intermedio y optimización exportados a la carpeta reportes/");
+        } catch (Exception e) {
+            System.out.println("⚠️  No se pudo exportar el código intermedio: " + e.getMessage());
         }
     }
 

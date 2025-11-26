@@ -110,6 +110,10 @@ public class TablaSimbolos {
     public SimboloFuncion getFuncionActual() {
         return funcionActual;
     }
+
+    public String getNombreAmbitoActual() {
+        return funcionActual != null ? funcionActual.getNombre() : "global";
+    }
     
     /**
      * Obtiene el nivel de ámbito actual

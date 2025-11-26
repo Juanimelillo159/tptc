@@ -163,50 +163,82 @@ public class ReportadorSemantico {
     }
 
     private static void mostrarTablaSimbolos(TablaSimbolos tabla) {
-        System.out.println(ColoresConsole.azul("📋 TABLA DE SÍMBOLOS:"));
-        System.out.println(ColoresConsole.cyan("═".repeat(80)));
-
-        // Mostrar funciones
-        Collection<SimboloFuncion> funciones = tabla.getTodasLasFunciones();
-        if (!funciones.isEmpty()) {
-            System.out.println(ColoresConsole.cyan("🔧 FUNCIONES:"));
-            System.out.println(ColoresConsole.cyan("-".repeat(40)));
-            for (SimboloFuncion funcion : funciones) {
-                String estado = funcion.isUtilizado() ? ColoresConsole.verde("✅") : ColoresConsole.amarillo("⚠️ ");
-                String tieneReturn = funcion.tieneReturn() ? ColoresConsole.verde("✓") : ColoresConsole.rojo("✗");
-                System.out.printf(ColoresConsole.cyan("   %s %s (línea %d)%n"), estado, funcion.getSignatura(), funcion.getLinea());
-                System.out.printf(ColoresConsole.cyan("      Return: %s | Parámetros: %d%n"),
-                        tieneReturn, funcion.getNumeroParametros());
-            }
-            System.out.println();
+        if (tabla == null) {
+            System.out.println("Tabla de símbolos no disponible");
+            return;
         }
 
-        // Mostrar variables
-        List<SimboloVariable> variables = tabla.getTodasLasVariables();
-        if (!variables.isEmpty()) {
-            System.out.println(ColoresConsole.cyan("📊 VARIABLES:"));
-            System.out.println(ColoresConsole.cyan("-".repeat(60)));
-            System.out.printf(ColoresConsole.negrita("%-15s %-8s %-5s %-10s %-10s%n"),
-                    "NOMBRE", "TIPO", "LÍNEA", "INICIALIZADA", "UTILIZADA");
-            System.out.println(ColoresConsole.cyan("-".repeat(60)));
+        System.out.println("=== TABLA DE SÍMBOLOS ===");
+        System.out.printf("%-15s %-10s %-15s %-10s %-10s %-15s %-20s%n",
+                "NOMBRE", "TIPO", "CATEGORÍA", "LÍNEA", "COLUMNA", "ÁMBITO", "DETALLES");
+        System.out.println("-".repeat(92));
 
-            for (SimboloVariable variable : variables) {
-                String inicializada = variable.isInicializada() ? ColoresConsole.verde("✓") : ColoresConsole.rojo("✗");
-                String utilizada = variable.isUtilizado() ? ColoresConsole.verde("✓") : ColoresConsole.rojo("✗");
-                String tipoDesc = variable.esParametro() ? variable.getTipoDato() + "*" : variable.getTipoDato();
+        List<FilaSimbolo> filas = new ArrayList<>();
 
-                System.out.printf("%-15s %-8s %-5d %-10s %-10s%n",
-                        variable.getNombre(),
-                        tipoDesc,
-                        variable.getLinea(),
-                        inicializada,
-                        utilizada);
+        for (SimboloVariable variable : tabla.getTodasLasVariables()) {
+            String categoria = variable.esParametro() ? "parametro" : "variable";
+            StringBuilder detalles = new StringBuilder();
+            if (variable.esArreglo()) {
+                detalles.append(String.format("[arr:%d] ", variable.getTamanioArreglo()));
             }
-            System.out.println(ColoresConsole.cyan("* = parámetro"));
-            System.out.println();
+            detalles.append("[private]");
+
+            filas.add(new FilaSimbolo(variable.getNombre(), variable.getTipoDato(), categoria,
+                    variable.getLinea(), variable.getColumna(), variable.getAmbito(), detalles.toString().trim()));
         }
 
-        System.out.println(ColoresConsole.cyan("═".repeat(80)));
+        for (SimboloFuncion funcion : tabla.getTodasLasFunciones()) {
+            String detallePrivacidad = "[private]";
+            String parametros = "";
+            if (!funcion.getParametros().isEmpty()) {
+                parametros = " [" + funcion.getParametros().stream()
+                        .map(SimboloVariable::getTipoDato)
+                        .reduce((a, b) -> a + ", " + b).orElse("") + "]";
+            }
+
+            filas.add(new FilaSimbolo(funcion.getNombre(), funcion.getTipoRetorno(), "funcion",
+                    funcion.getLinea(), funcion.getColumna(), "global", detallePrivacidad + parametros));
+        }
+
+        filas.sort((a, b) -> {
+            int cmp = Integer.compare(a.linea, b.linea);
+            if (cmp == 0) {
+                cmp = a.nombre.compareTo(b.nombre);
+            }
+            return cmp;
+        });
+
+        for (FilaSimbolo fila : filas) {
+            System.out.printf("%-15s %-10s %-15s %-10d %-10d %-15s %-20s%n",
+                    fila.nombre,
+                    fila.tipo,
+                    fila.categoria,
+                    fila.linea,
+                    fila.columna,
+                    fila.ambito,
+                    fila.detalles);
+        }
+    }
+
+    private static class FilaSimbolo {
+        String nombre;
+        String tipo;
+        String categoria;
+        int linea;
+        int columna;
+        String ambito;
+        String detalles;
+
+        FilaSimbolo(String nombre, String tipo, String categoria, int linea, int columna, String ambito,
+                String detalles) {
+            this.nombre = nombre;
+            this.tipo = tipo;
+            this.categoria = categoria;
+            this.linea = linea;
+            this.columna = columna;
+            this.ambito = ambito;
+            this.detalles = detalles;
+        }
     }
 
     private static void mostrarResumenTiposErrores(List<ErrorSemantico> errores, boolean sonCriticos) {

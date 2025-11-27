@@ -22,10 +22,10 @@ public class compiladorParser extends Parser {
 		PA=1, PC=2, LA=3, LC=4, CA=5, CC=6, PyC=7, IGU=8, COM=9, EQ=10, NEQ=11, 
 		LT=12, LE=13, GT=14, GE=15, AND=16, OR=17, NOT=18, SUMA=19, RESTA=20, 
 		MULT=21, DIV=22, MOD=23, SUMA_ASIG=24, INT=25, DOUBLE=26, CHAR=27, VOID=28, 
-		BOOL=29, TRUE=30, FALSE=31, IF=32, ELSE=33, WHILE=34, FOR=35, RETURN=36, 
-		BREAK=37, CONTINUE=38, MAIN=39, ENTERO=40, DECIMAL=41, CARACTER=42, IDENTIFICADOR=43, 
-		IDENTIFICADOR_INVALIDO=44, DECIMAL_INVALIDO=45, CARACTER_INVALIDO=46, 
-		ERROR_LEXICO=47, COMENTARIO_LINEA=48, COMENTARIO_BLOQUE=49, WS=50;
+		BOOL=29, STRING=30, TRUE=31, FALSE=32, IF=33, ELSE=34, WHILE=35, FOR=36, 
+		RETURN=37, BREAK=38, CONTINUE=39, MAIN=40, ENTERO=41, DECIMAL=42, CARACTER=43, 
+		IDENTIFICADOR=44, IDENTIFICADOR_INVALIDO=45, DECIMAL_INVALIDO=46, CARACTER_INVALIDO=47, 
+		ERROR_LEXICO=48, COMENTARIO_LINEA=49, COMENTARIO_BLOQUE=50, WS=51;
 	public static final int
 		RULE_programa = 0, RULE_definicion_funcion_main = 1, RULE_definicion_funcion = 2, 
 		RULE_parametros = 3, RULE_parametro = 4, RULE_tipo = 5, RULE_declaracion_global = 6, 
@@ -48,8 +48,8 @@ public class compiladorParser extends Parser {
 			null, "'('", "')'", "'{'", "'}'", "'['", "']'", "';'", "'='", "','", 
 			"'=='", "'!='", "'<'", "'<='", "'>'", "'>='", "'&&'", "'||'", "'!'", 
 			"'+'", "'-'", "'*'", "'/'", "'%'", "'+='", "'int'", "'double'", "'char'", 
-			"'void'", "'bool'", "'true'", "'false'", "'if'", "'else'", "'while'", 
-			"'for'", "'return'", "'break'", "'continue'", "'main'"
+			"'void'", "'bool'", "'string'", "'true'", "'false'", "'if'", "'else'", 
+			"'while'", "'for'", "'return'", "'break'", "'continue'", "'main'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -57,8 +57,8 @@ public class compiladorParser extends Parser {
 		return new String[] {
 			null, "PA", "PC", "LA", "LC", "CA", "CC", "PyC", "IGU", "COM", "EQ", 
 			"NEQ", "LT", "LE", "GT", "GE", "AND", "OR", "NOT", "SUMA", "RESTA", "MULT", 
-			"DIV", "MOD", "SUMA_ASIG", "INT", "DOUBLE", "CHAR", "VOID", "BOOL", "TRUE", 
-			"FALSE", "IF", "ELSE", "WHILE", "FOR", "RETURN", "BREAK", "CONTINUE", 
+			"DIV", "MOD", "SUMA_ASIG", "INT", "DOUBLE", "CHAR", "VOID", "BOOL", "STRING", 
+			"TRUE", "FALSE", "IF", "ELSE", "WHILE", "FOR", "RETURN", "BREAK", "CONTINUE", 
 			"MAIN", "ENTERO", "DECIMAL", "CARACTER", "IDENTIFICADOR", "IDENTIFICADOR_INVALIDO", 
 			"DECIMAL_INVALIDO", "CARACTER_INVALIDO", "ERROR_LEXICO", "COMENTARIO_LINEA", 
 			"COMENTARIO_BLOQUE", "WS"
@@ -310,7 +310,7 @@ public class compiladorParser extends Parser {
 			setState(62);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 1040187392L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2113929216L) != 0)) {
 				{
 				setState(61);
 				parametros();
@@ -458,6 +458,7 @@ public class compiladorParser extends Parser {
 		public TerminalNode DOUBLE() { return getToken(compiladorParser.DOUBLE, 0); }
 		public TerminalNode VOID() { return getToken(compiladorParser.VOID, 0); }
 		public TerminalNode BOOL() { return getToken(compiladorParser.BOOL, 0); }
+		public TerminalNode STRING() { return getToken(compiladorParser.STRING, 0); }
 		public TipoContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -486,7 +487,7 @@ public class compiladorParser extends Parser {
 			{
 			setState(78);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 1040187392L) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 2113929216L) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -760,7 +761,7 @@ public class compiladorParser extends Parser {
 			setState(110);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 17033808576522L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 34067648872458L) != 0)) {
 				{
 				{
 				setState(107);
@@ -1135,6 +1136,7 @@ public class compiladorParser extends Parser {
 			case CHAR:
 			case VOID:
 			case BOOL:
+			case STRING:
 				{
 				setState(154);
 				declaracion_variable();
@@ -1156,7 +1158,7 @@ public class compiladorParser extends Parser {
 			setState(160);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 16495897477122L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 32991793119234L) != 0)) {
 				{
 				setState(159);
 				expresion(0);
@@ -1235,7 +1237,7 @@ public class compiladorParser extends Parser {
 			setState(172);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 16495897477122L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 32991793119234L) != 0)) {
 				{
 				setState(171);
 				expresion(0);
@@ -1583,7 +1585,7 @@ public class compiladorParser extends Parser {
 				setState(199);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 16495897477122L) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 32991793119234L) != 0)) {
 					{
 					setState(198);
 					argumentos();
@@ -1850,7 +1852,7 @@ public class compiladorParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\u0004\u00012\u00f3\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
+		"\u0004\u00013\u00f3\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
 		"\u0002\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004\u0007\u0004\u0002"+
 		"\u0005\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007\u0002"+
 		"\b\u0007\b\u0002\t\u0007\t\u0002\n\u0007\n\u0002\u000b\u0007\u000b\u0002"+
@@ -1887,7 +1889,7 @@ public class compiladorParser extends Parser {
 		"\b\u0013\n\u0013\f\u0013\u00e9\t\u0013\u0001\u0014\u0001\u0014\u0001\u0014"+
 		"\u0005\u0014\u00ee\b\u0014\n\u0014\f\u0014\u00f1\t\u0014\u0001\u0014\u0000"+
 		"\u0001&\u0015\u0000\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016"+
-		"\u0018\u001a\u001c\u001e \"$&(\u0000\u0005\u0001\u0000\u0019\u001d\u0001"+
+		"\u0018\u001a\u001c\u001e \"$&(\u0000\u0005\u0001\u0000\u0019\u001e\u0001"+
 		"\u0000\u0012\u0014\u0001\u0000\n\u000f\u0001\u0000\u0013\u0014\u0001\u0000"+
 		"\u0015\u0017\u0106\u0000.\u0001\u0000\u0000\u0000\u00024\u0001\u0000\u0000"+
 		"\u0000\u0004:\u0001\u0000\u0000\u0000\u0006C\u0001\u0000\u0000\u0000\b"+
@@ -1903,16 +1905,16 @@ public class compiladorParser extends Parser {
 		"\u0000\u0000\u0000.,\u0001\u0000\u0000\u0000./\u0001\u0000\u0000\u0000"+
 		"/1\u0001\u0000\u0000\u00000.\u0001\u0000\u0000\u000012\u0003\u0002\u0001"+
 		"\u000023\u0005\u0000\u0000\u00013\u0001\u0001\u0000\u0000\u000045\u0005"+
-		"\u0019\u0000\u000056\u0005\'\u0000\u000067\u0005\u0001\u0000\u000078\u0005"+
+		"\u0019\u0000\u000056\u0005(\u0000\u000067\u0005\u0001\u0000\u000078\u0005"+
 		"\u0002\u0000\u000089\u0003\u0012\t\u00009\u0003\u0001\u0000\u0000\u0000"+
-		":;\u0003\n\u0005\u0000;<\u0005+\u0000\u0000<>\u0005\u0001\u0000\u0000"+
+		":;\u0003\n\u0005\u0000;<\u0005,\u0000\u0000<>\u0005\u0001\u0000\u0000"+
 		"=?\u0003\u0006\u0003\u0000>=\u0001\u0000\u0000\u0000>?\u0001\u0000\u0000"+
 		"\u0000?@\u0001\u0000\u0000\u0000@A\u0005\u0002\u0000\u0000AB\u0003\u0012"+
 		"\t\u0000B\u0005\u0001\u0000\u0000\u0000CH\u0003\b\u0004\u0000DE\u0005"+
 		"\t\u0000\u0000EG\u0003\b\u0004\u0000FD\u0001\u0000\u0000\u0000GJ\u0001"+
 		"\u0000\u0000\u0000HF\u0001\u0000\u0000\u0000HI\u0001\u0000\u0000\u0000"+
 		"I\u0007\u0001\u0000\u0000\u0000JH\u0001\u0000\u0000\u0000KL\u0003\n\u0005"+
-		"\u0000LM\u0005+\u0000\u0000M\t\u0001\u0000\u0000\u0000NO\u0007\u0000\u0000"+
+		"\u0000LM\u0005,\u0000\u0000M\t\u0001\u0000\u0000\u0000NO\u0007\u0000\u0000"+
 		"\u0000O\u000b\u0001\u0000\u0000\u0000PQ\u0003\n\u0005\u0000QV\u0003\u0010"+
 		"\b\u0000RS\u0005\t\u0000\u0000SU\u0003\u0010\b\u0000TR\u0001\u0000\u0000"+
 		"\u0000UX\u0001\u0000\u0000\u0000VT\u0001\u0000\u0000\u0000VW\u0001\u0000"+
@@ -1921,7 +1923,7 @@ public class compiladorParser extends Parser {
 		"a\u0003\u0010\b\u0000]^\u0005\t\u0000\u0000^`\u0003\u0010\b\u0000_]\u0001"+
 		"\u0000\u0000\u0000`c\u0001\u0000\u0000\u0000a_\u0001\u0000\u0000\u0000"+
 		"ab\u0001\u0000\u0000\u0000b\u000f\u0001\u0000\u0000\u0000ca\u0001\u0000"+
-		"\u0000\u0000dh\u0005+\u0000\u0000ef\u0005\u0005\u0000\u0000fg\u0005(\u0000"+
+		"\u0000\u0000dh\u0005,\u0000\u0000ef\u0005\u0005\u0000\u0000fg\u0005)\u0000"+
 		"\u0000gi\u0005\u0006\u0000\u0000he\u0001\u0000\u0000\u0000hi\u0001\u0000"+
 		"\u0000\u0000i\u0011\u0001\u0000\u0000\u0000jn\u0005\u0003\u0000\u0000"+
 		"km\u0003\u0014\n\u0000lk\u0001\u0000\u0000\u0000mp\u0001\u0000\u0000\u0000"+
@@ -1933,22 +1935,22 @@ public class compiladorParser extends Parser {
 		"\u0007\u0000\u0000{\u0088\u0001\u0000\u0000\u0000|\u0088\u0003\u0016\u000b"+
 		"\u0000}\u0088\u0003\u0018\f\u0000~\u0088\u0003\u001a\r\u0000\u007f\u0080"+
 		"\u0003\u001c\u000e\u0000\u0080\u0081\u0005\u0007\u0000\u0000\u0081\u0088"+
-		"\u0001\u0000\u0000\u0000\u0082\u0083\u0005%\u0000\u0000\u0083\u0088\u0005"+
-		"\u0007\u0000\u0000\u0084\u0085\u0005&\u0000\u0000\u0085\u0088\u0005\u0007"+
+		"\u0001\u0000\u0000\u0000\u0082\u0083\u0005&\u0000\u0000\u0083\u0088\u0005"+
+		"\u0007\u0000\u0000\u0084\u0085\u0005\'\u0000\u0000\u0085\u0088\u0005\u0007"+
 		"\u0000\u0000\u0086\u0088\u0003\u0012\t\u0000\u0087s\u0001\u0000\u0000"+
 		"\u0000\u0087v\u0001\u0000\u0000\u0000\u0087y\u0001\u0000\u0000\u0000\u0087"+
 		"|\u0001\u0000\u0000\u0000\u0087}\u0001\u0000\u0000\u0000\u0087~\u0001"+
 		"\u0000\u0000\u0000\u0087\u007f\u0001\u0000\u0000\u0000\u0087\u0082\u0001"+
 		"\u0000\u0000\u0000\u0087\u0084\u0001\u0000\u0000\u0000\u0087\u0086\u0001"+
 		"\u0000\u0000\u0000\u0088\u0015\u0001\u0000\u0000\u0000\u0089\u008a\u0005"+
-		" \u0000\u0000\u008a\u008b\u0005\u0001\u0000\u0000\u008b\u008c\u0003&\u0013"+
+		"!\u0000\u0000\u008a\u008b\u0005\u0001\u0000\u0000\u008b\u008c\u0003&\u0013"+
 		"\u0000\u008c\u008d\u0005\u0002\u0000\u0000\u008d\u0090\u0003\u0014\n\u0000"+
-		"\u008e\u008f\u0005!\u0000\u0000\u008f\u0091\u0003\u0014\n\u0000\u0090"+
+		"\u008e\u008f\u0005\"\u0000\u0000\u008f\u0091\u0003\u0014\n\u0000\u0090"+
 		"\u008e\u0001\u0000\u0000\u0000\u0090\u0091\u0001\u0000\u0000\u0000\u0091"+
-		"\u0017\u0001\u0000\u0000\u0000\u0092\u0093\u0005\"\u0000\u0000\u0093\u0094"+
+		"\u0017\u0001\u0000\u0000\u0000\u0092\u0093\u0005#\u0000\u0000\u0093\u0094"+
 		"\u0005\u0001\u0000\u0000\u0094\u0095\u0003&\u0013\u0000\u0095\u0096\u0005"+
 		"\u0002\u0000\u0000\u0096\u0097\u0003\u0014\n\u0000\u0097\u0019\u0001\u0000"+
-		"\u0000\u0000\u0098\u0099\u0005#\u0000\u0000\u0099\u009c\u0005\u0001\u0000"+
+		"\u0000\u0000\u0098\u0099\u0005$\u0000\u0000\u0099\u009c\u0005\u0001\u0000"+
 		"\u0000\u009a\u009d\u0003\u000e\u0007\u0000\u009b\u009d\u0003\"\u0011\u0000"+
 		"\u009c\u009a\u0001\u0000\u0000\u0000\u009c\u009b\u0001\u0000\u0000\u0000"+
 		"\u009c\u009d\u0001\u0000\u0000\u0000\u009d\u009e\u0001\u0000\u0000\u0000"+
@@ -1959,12 +1961,12 @@ public class compiladorParser extends Parser {
 		"\u0001\u0000\u0000\u0000\u00a5\u00a4\u0001\u0000\u0000\u0000\u00a5\u00a6"+
 		"\u0001\u0000\u0000\u0000\u00a6\u00a7\u0001\u0000\u0000\u0000\u00a7\u00a8"+
 		"\u0005\u0002\u0000\u0000\u00a8\u00a9\u0003\u0014\n\u0000\u00a9\u001b\u0001"+
-		"\u0000\u0000\u0000\u00aa\u00ac\u0005$\u0000\u0000\u00ab\u00ad\u0003&\u0013"+
+		"\u0000\u0000\u0000\u00aa\u00ac\u0005%\u0000\u0000\u00ab\u00ad\u0003&\u0013"+
 		"\u0000\u00ac\u00ab\u0001\u0000\u0000\u0000\u00ac\u00ad\u0001\u0000\u0000"+
 		"\u0000\u00ad\u001d\u0001\u0000\u0000\u0000\u00ae\u00b1\u0003\"\u0011\u0000"+
 		"\u00af\u00b1\u0003$\u0012\u0000\u00b0\u00ae\u0001\u0000\u0000\u0000\u00b0"+
 		"\u00af\u0001\u0000\u0000\u0000\u00b1\u001f\u0001\u0000\u0000\u0000\u00b2"+
-		"\u00b7\u0005+\u0000\u0000\u00b3\u00b4\u0005\u0005\u0000\u0000\u00b4\u00b5"+
+		"\u00b7\u0005,\u0000\u0000\u00b3\u00b4\u0005\u0005\u0000\u0000\u00b4\u00b5"+
 		"\u0003&\u0013\u0000\u00b5\u00b6\u0005\u0006\u0000\u0000\u00b6\u00b8\u0001"+
 		"\u0000\u0000\u0000\u00b7\u00b3\u0001\u0000\u0000\u0000\u00b7\u00b8\u0001"+
 		"\u0000\u0000\u0000\u00b8!\u0001\u0000\u0000\u0000\u00b9\u00ba\u0003 \u0010"+
@@ -1972,37 +1974,37 @@ public class compiladorParser extends Parser {
 		"\u00bc#\u0001\u0000\u0000\u0000\u00bd\u00be\u0003 \u0010\u0000\u00be\u00bf"+
 		"\u0005\u0018\u0000\u0000\u00bf\u00c0\u0003&\u0013\u0000\u00c0%\u0001\u0000"+
 		"\u0000\u0000\u00c1\u00c2\u0006\u0013\uffff\uffff\u0000\u00c2\u00c3\u0007"+
-		"\u0001\u0000\u0000\u00c3\u00d5\u0003&\u0013\t\u00c4\u00c5\u0005+\u0000"+
+		"\u0001\u0000\u0000\u00c3\u00d5\u0003&\u0013\t\u00c4\u00c5\u0005,\u0000"+
 		"\u0000\u00c5\u00c7\u0005\u0001\u0000\u0000\u00c6\u00c8\u0003(\u0014\u0000"+
 		"\u00c7\u00c6\u0001\u0000\u0000\u0000\u00c7\u00c8\u0001\u0000\u0000\u0000"+
 		"\u00c8\u00c9\u0001\u0000\u0000\u0000\u00c9\u00d5\u0005\u0002\u0000\u0000"+
-		"\u00ca\u00d5\u0003 \u0010\u0000\u00cb\u00d5\u0005(\u0000\u0000\u00cc\u00d5"+
-		"\u0005)\u0000\u0000\u00cd\u00d5\u0005*\u0000\u0000\u00ce\u00d5\u0005\u001e"+
-		"\u0000\u0000\u00cf\u00d5\u0005\u001f\u0000\u0000\u00d0\u00d1\u0005\u0001"+
-		"\u0000\u0000\u00d1\u00d2\u0003&\u0013\u0000\u00d2\u00d3\u0005\u0002\u0000"+
-		"\u0000\u00d3\u00d5\u0001\u0000\u0000\u0000\u00d4\u00c1\u0001\u0000\u0000"+
-		"\u0000\u00d4\u00c4\u0001\u0000\u0000\u0000\u00d4\u00ca\u0001\u0000\u0000"+
-		"\u0000\u00d4\u00cb\u0001\u0000\u0000\u0000\u00d4\u00cc\u0001\u0000\u0000"+
-		"\u0000\u00d4\u00cd\u0001\u0000\u0000\u0000\u00d4\u00ce\u0001\u0000\u0000"+
-		"\u0000\u00d4\u00cf\u0001\u0000\u0000\u0000\u00d4\u00d0\u0001\u0000\u0000"+
-		"\u0000\u00d5\u00e7\u0001\u0000\u0000\u0000\u00d6\u00d7\n\u000e\u0000\u0000"+
-		"\u00d7\u00d8\u0005\u0011\u0000\u0000\u00d8\u00e6\u0003&\u0013\u000f\u00d9"+
-		"\u00da\n\r\u0000\u0000\u00da\u00db\u0005\u0010\u0000\u0000\u00db\u00e6"+
-		"\u0003&\u0013\u000e\u00dc\u00dd\n\f\u0000\u0000\u00dd\u00de\u0007\u0002"+
-		"\u0000\u0000\u00de\u00e6\u0003&\u0013\r\u00df\u00e0\n\u000b\u0000\u0000"+
-		"\u00e0\u00e1\u0007\u0003\u0000\u0000\u00e1\u00e6\u0003&\u0013\f\u00e2"+
-		"\u00e3\n\n\u0000\u0000\u00e3\u00e4\u0007\u0004\u0000\u0000\u00e4\u00e6"+
-		"\u0003&\u0013\u000b\u00e5\u00d6\u0001\u0000\u0000\u0000\u00e5\u00d9\u0001"+
-		"\u0000\u0000\u0000\u00e5\u00dc\u0001\u0000\u0000\u0000\u00e5\u00df\u0001"+
-		"\u0000\u0000\u0000\u00e5\u00e2\u0001\u0000\u0000\u0000\u00e6\u00e9\u0001"+
-		"\u0000\u0000\u0000\u00e7\u00e5\u0001\u0000\u0000\u0000\u00e7\u00e8\u0001"+
-		"\u0000\u0000\u0000\u00e8\'\u0001\u0000\u0000\u0000\u00e9\u00e7\u0001\u0000"+
-		"\u0000\u0000\u00ea\u00ef\u0003&\u0013\u0000\u00eb\u00ec\u0005\t\u0000"+
-		"\u0000\u00ec\u00ee\u0003&\u0013\u0000\u00ed\u00eb\u0001\u0000\u0000\u0000"+
-		"\u00ee\u00f1\u0001\u0000\u0000\u0000\u00ef\u00ed\u0001\u0000\u0000\u0000"+
-		"\u00ef\u00f0\u0001\u0000\u0000\u0000\u00f0)\u0001\u0000\u0000\u0000\u00f1"+
-		"\u00ef\u0001\u0000\u0000\u0000\u0015,.>HVahn\u0087\u0090\u009c\u00a0\u00a5"+
-		"\u00ac\u00b0\u00b7\u00c7\u00d4\u00e5\u00e7\u00ef";
+		"\u00ca\u00d5\u0003 \u0010\u0000\u00cb\u00d5\u0005)\u0000\u0000\u00cc\u00d5"+
+		"\u0005*\u0000\u0000\u00cd\u00d5\u0005+\u0000\u0000\u00ce\u00d5\u0005\u001f"+
+		"\u0000\u0000\u00cf\u00d5\u0005 \u0000\u0000\u00d0\u00d1\u0005\u0001\u0000"+
+		"\u0000\u00d1\u00d2\u0003&\u0013\u0000\u00d2\u00d3\u0005\u0002\u0000\u0000"+
+		"\u00d3\u00d5\u0001\u0000\u0000\u0000\u00d4\u00c1\u0001\u0000\u0000\u0000"+
+		"\u00d4\u00c4\u0001\u0000\u0000\u0000\u00d4\u00ca\u0001\u0000\u0000\u0000"+
+		"\u00d4\u00cb\u0001\u0000\u0000\u0000\u00d4\u00cc\u0001\u0000\u0000\u0000"+
+		"\u00d4\u00cd\u0001\u0000\u0000\u0000\u00d4\u00ce\u0001\u0000\u0000\u0000"+
+		"\u00d4\u00cf\u0001\u0000\u0000\u0000\u00d4\u00d0\u0001\u0000\u0000\u0000"+
+		"\u00d5\u00e7\u0001\u0000\u0000\u0000\u00d6\u00d7\n\u000e\u0000\u0000\u00d7"+
+		"\u00d8\u0005\u0011\u0000\u0000\u00d8\u00e6\u0003&\u0013\u000f\u00d9\u00da"+
+		"\n\r\u0000\u0000\u00da\u00db\u0005\u0010\u0000\u0000\u00db\u00e6\u0003"+
+		"&\u0013\u000e\u00dc\u00dd\n\f\u0000\u0000\u00dd\u00de\u0007\u0002\u0000"+
+		"\u0000\u00de\u00e6\u0003&\u0013\r\u00df\u00e0\n\u000b\u0000\u0000\u00e0"+
+		"\u00e1\u0007\u0003\u0000\u0000\u00e1\u00e6\u0003&\u0013\f\u00e2\u00e3"+
+		"\n\n\u0000\u0000\u00e3\u00e4\u0007\u0004\u0000\u0000\u00e4\u00e6\u0003"+
+		"&\u0013\u000b\u00e5\u00d6\u0001\u0000\u0000\u0000\u00e5\u00d9\u0001\u0000"+
+		"\u0000\u0000\u00e5\u00dc\u0001\u0000\u0000\u0000\u00e5\u00df\u0001\u0000"+
+		"\u0000\u0000\u00e5\u00e2\u0001\u0000\u0000\u0000\u00e6\u00e9\u0001\u0000"+
+		"\u0000\u0000\u00e7\u00e5\u0001\u0000\u0000\u0000\u00e7\u00e8\u0001\u0000"+
+		"\u0000\u0000\u00e8\'\u0001\u0000\u0000\u0000\u00e9\u00e7\u0001\u0000\u0000"+
+		"\u0000\u00ea\u00ef\u0003&\u0013\u0000\u00eb\u00ec\u0005\t\u0000\u0000"+
+		"\u00ec\u00ee\u0003&\u0013\u0000\u00ed\u00eb\u0001\u0000\u0000\u0000\u00ee"+
+		"\u00f1\u0001\u0000\u0000\u0000\u00ef\u00ed\u0001\u0000\u0000\u0000\u00ef"+
+		"\u00f0\u0001\u0000\u0000\u0000\u00f0)\u0001\u0000\u0000\u0000\u00f1\u00ef"+
+		"\u0001\u0000\u0000\u0000\u0015,.>HVahn\u0087\u0090\u009c\u00a0\u00a5\u00ac"+
+		"\u00b0\u00b7\u00c7\u00d4\u00e5\u00e7\u00ef";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

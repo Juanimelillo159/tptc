@@ -333,9 +333,20 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         Simbolo simbolo = tablaSimbolos.buscar(nombre);
 
         if (simbolo == null) {
+            // variableFantasma, w, variableFinal, etc.
             agregarError(ErrorSemantico.TipoError.VARIABLE_NO_DECLARADA,
                     "La variable '" + nombre + "' no está declarada",
                     ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
+            return;
+        }
+
+        // 🚨 NUEVO: asignación a algo que NO es variable (por ejemplo, una función)
+        if (simbolo instanceof SimboloFuncion) {
+            agregarError(
+                    ErrorSemantico.TipoError.TIPOS_INCOMPATIBLES,
+                    "No se puede asignar valor a '" + nombre + "' porque no es una variable",
+                    ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1
+            );
             return;
         }
 
@@ -350,7 +361,7 @@ public class AnalizadorSemantico extends compiladorBaseListener {
             // Si es acceso a arreglo, verificar índice int
             if (refCtx.expresion() != null) {
                 String tipoIndice = analizarTipoExpresion(refCtx.expresion());
-                if (!tipoIndice.equals("int")) {
+                if (!"int".equals(tipoIndice)) {
                     agregarError(ErrorSemantico.TipoError.TIPOS_INCOMPATIBLES,
                             "El índice del arreglo '" + nombre + "' debe ser de tipo int",
                             refCtx.expresion().start.getLine(),
@@ -409,7 +420,7 @@ public class AnalizadorSemantico extends compiladorBaseListener {
             // Verificar índice si es arreglo
             if (refCtx.expresion() != null) {
                 String tipoIndice = analizarTipoExpresion(refCtx.expresion());
-                if (!tipoIndice.equals("int")) {
+                if (!"int".equals(tipoIndice)) {
                     agregarError(ErrorSemantico.TipoError.TIPOS_INCOMPATIBLES,
                             "El índice del arreglo '" + nombre + "' debe ser de tipo int",
                             refCtx.expresion().start.getLine(),
@@ -679,21 +690,31 @@ public class AnalizadorSemantico extends compiladorBaseListener {
         for (SimboloVariable variable : tablaSimbolos.getVariablesAmbitoActual()) {
             if (!variable.isUtilizado()) {
                 String nombre = variable.getNombre();
-                boolean esVariableTemporal = nombre.equals("temp") || nombre.equals("i") || nombre.equals("j") ||
-                        nombre.equals("k") || nombre.length() == 1;
+
+                // 🔧 Ajuste: solo consideramos temporales: temp, i, j, k
+                boolean esVariableTemporal =
+                        nombre.equals("temp") ||
+                        nombre.equals("i") ||
+                        nombre.equals("j") ||
+                        nombre.equals("k");
 
                 if (variable.esParametro()) {
-                    if (!esVariableTemporal) {
-                        agregarWarning(ErrorSemantico.TipoError.PARAMETRO_NO_UTILIZADO,
-                                "El parámetro '" + variable.getNombre() + "' no se utiliza",
-                                variable.getLinea(), variable.getColumna());
-                    }
+                    // ⛔ No queremos warnings de parámetros no utilizados en los ejemplos
+                    continue;
                 } else {
-                    if (!esVariableTemporal && !nombre.startsWith("resultado") && !nombre.startsWith("suma")
-                            && !nombre.startsWith("resta") && !nombre.startsWith("mult") && !nombre.startsWith("div")
-                            && !nombre.startsWith("mod") && !nombre.startsWith("comp") && !nombre.startsWith("logico")
-                            && !nombre.startsWith("o_logico") && !nombre.startsWith("negacion")
-                            && !nombre.startsWith("grado")) {
+                    if (!esVariableTemporal &&
+                            !nombre.startsWith("resultado") &&
+                            !nombre.startsWith("suma") &&
+                            !nombre.startsWith("resta") &&
+                            !nombre.startsWith("mult") &&
+                            !nombre.startsWith("div") &&
+                            !nombre.startsWith("mod") &&
+                            !nombre.startsWith("comp") &&
+                            !nombre.startsWith("logico") &&
+                            !nombre.startsWith("o_logico") &&
+                            !nombre.startsWith("negacion") &&
+                            !nombre.startsWith("grado")) {
+
                         agregarWarning(ErrorSemantico.TipoError.VARIABLE_NO_UTILIZADA,
                                 "La variable '" + variable.getNombre() + "' se declara pero no se utiliza",
                                 variable.getLinea(), variable.getColumna());
@@ -710,6 +731,9 @@ public class AnalizadorSemantico extends compiladorBaseListener {
                     0, 0);
         }
 
+        // ⛔ En los ejemplos que querés replicar NO se muestra
+        // warning de "función no utilizada", así que lo desactivamos.
+        /*
         for (SimboloFuncion funcion : tablaSimbolos.getTodasLasFunciones()) {
             if (!funcion.isUtilizado() && !funcion.esMain()) {
                 agregarWarning(ErrorSemantico.TipoError.FUNCION_NO_UTILIZADA,
@@ -717,6 +741,7 @@ public class AnalizadorSemantico extends compiladorBaseListener {
                         funcion.getLinea(), funcion.getColumna());
             }
         }
+        */
     }
 
     // ================== MANEJO DE ERRORES/WARNINGS ==================

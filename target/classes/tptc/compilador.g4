@@ -44,6 +44,8 @@ DOUBLE: 'double';
 CHAR: 'char';
 VOID: 'void';
 BOOL: 'bool';
+STRING: 'string';
+
 
 TRUE: 'true';
 FALSE: 'false';
@@ -104,7 +106,7 @@ parametros: parametro (COM parametro)*;
 parametro: tipo IDENTIFICADOR;
 
 // Tipos básicos
-tipo: INT | CHAR | DOUBLE | VOID | BOOL;
+tipo: INT | CHAR | DOUBLE | VOID | BOOL | STRING;
 
 // ================== DECLARACIONES ==================
 

@@ -11,6 +11,7 @@ public class App {
 
     // CONFIGURACIÓN PRINCIPAL
     private static final String ARCHIVO_A_ANALIZAR = "input/Ejemplo-Final-Correcto.txt";
+    /* private static final String ARCHIVO_A_ANALIZAR = "input/Ejemplo-Final-Errores.txt"; */
 
     // Configuración de análisis
     private static final boolean EJECUTAR_ANALISIS_LEXICO = true;
@@ -116,8 +117,7 @@ public class App {
             }
 
             // === 3. (Opcional) VISUALIZACIÓN DEL AST ===
-            // Si más adelante querés abrir una ventana gráfica del AST, este es el lugar.
-            // Por ahora solo lo mencionamos para mantener el mismo flujo conceptual.
+            // Aquí podrías enganchar una visualización gráfica del AST si quisieras.
 
             // === 4. ANÁLISIS SEMÁNTICO ===
             if (EJECUTAR_ANALISIS_SEMANTICO && resultadoSintactico != null && resultadoSintactico.fueExitoso()) {
@@ -170,7 +170,7 @@ public class App {
 
                 if (MOSTRAR_CODIGO_INTERMEDIO) {
                     System.out.println("   📝 Código de tres direcciones generado:\n");
-                    generador.mostrarCodigo();
+                    generador.mostrarCodigo(); // método alias que ya definiste/marcamos antes
                 }
 
                 String archivoIntermedio = baseNombre + "_codigo_intermedio.txt";
@@ -362,6 +362,8 @@ public class App {
             }
             if (resultadoSemantico != null && !resultadoSemantico.fueExitoso()) {
                 System.out.println("❌ Errores semánticos detectados");
+                // Línea específica pedida en el resultado esperado
+                System.out.println("❌ Compilación detenida debido a errores semánticos.");
             }
         }
 
